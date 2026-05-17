@@ -1,89 +1,66 @@
 package com.example.guiaeducativaar;
 
-
-
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.example.guiaeducativaar.R;
-import com.example.guiaeducativaar.utils.UbicacionHelper;
+import com.google.ar.core.Anchor;
+import com.google.ar.core.HitResult;
+import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.rendering.Color;
+import com.google.ar.sceneform.rendering.MaterialFactory;
+import com.google.ar.sceneform.rendering.ShapeFactory;
+import com.google.ar.sceneform.ux.ArFragment;
 
 public class ARActivity extends AppCompatActivity {
 
-    private static final int CAMERA_PERMISSION_CODE = 200;
+    private ArFragment arFragment;
+    private boolean objetoColocado = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_aractivity);
 
-        verificarPermisoCamara();
+        arFragment = (ArFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.arFragment);
 
-        UbicacionHelper.solicitarPermisoUbicacion(this);
+        if (arFragment == null) {
+            Toast.makeText(this, "No se pudo iniciar ARCore", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        arFragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) -> {
+            if (!objetoColocado) {
+                crearObjeto3D(hitResult);
+                objetoColocado = true;
+            } else {
+                Toast.makeText(this, "Objeto AR ya colocado", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void verificarPermisoCamara() {
+    private void crearObjeto3D(HitResult hitResult) {
+        Anchor anchor = hitResult.createAnchor();
 
-        if (ContextCompat.checkSelfPermission(
+        MaterialFactory.makeOpaqueWithColor(
                 this,
-                Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
+                new Color(android.graphics.Color.rgb(0, 106, 103))
+        ).thenAccept(material -> {
 
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.CAMERA},
-                    CAMERA_PERMISSION_CODE
+            AnchorNode anchorNode = new AnchorNode(anchor);
+            anchorNode.setParent(arFragment.getArSceneView().getScene());
+
+            anchorNode.setRenderable(
+                    ShapeFactory.makeCube(
+                            new com.google.ar.sceneform.math.Vector3(0.25f, 0.25f, 0.25f),
+                            new com.google.ar.sceneform.math.Vector3(0f, 0.12f, 0f),
+                            material
+                    )
             );
 
-        } else {
-
-            Toast.makeText(
-                    this,
-                    "Permiso de cámara concedido",
-                    Toast.LENGTH_SHORT
-            ).show();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(
-            int requestCode,
-            @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
-
-        super.onRequestPermissionsResult(
-                requestCode,
-                permissions,
-                grantResults
-        );
-
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-
-            if (grantResults.length > 0
-                    && grantResults[0]
-                    == PackageManager.PERMISSION_GRANTED) {
-
-                Toast.makeText(
-                        this,
-                        "Cámara habilitada para AR",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-            } else {
-
-                Toast.makeText(
-                        this,
-                        "Se necesita permiso de cámara",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-        }
+            Toast.makeText(this, "Objeto 3D colocado", Toast.LENGTH_SHORT).show();
+        });
     }
 }
