@@ -8,21 +8,19 @@ public class PuntoEducativo {
     private double latitud;
     private double longitud;
     private String imagenReferencia;
-    private String recursoMultimedia;
     private String modelo3D;
 
     public PuntoEducativo() {
     }
 
     public PuntoEducativo(String id, String nombre, String descripcion, double latitud, double longitud,
-                          String imagenReferencia, String recursoMultimedia, String modelo3D) {
+                          String imagenReferencia, String modelo3D) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.latitud = latitud;
         this.longitud = longitud;
         this.imagenReferencia = imagenReferencia;
-        this.recursoMultimedia = recursoMultimedia;
         this.modelo3D = modelo3D;
     }
 
@@ -48,10 +46,6 @@ public class PuntoEducativo {
 
     public String getImagenReferencia() {
         return imagenReferencia;
-    }
-
-    public String getRecursoMultimedia() {
-        return recursoMultimedia;
     }
 
     public String getModelo3D() {
@@ -80,10 +74,6 @@ public class PuntoEducativo {
 
     public void setImagenReferencia(String imagenReferencia) {
         this.imagenReferencia = imagenReferencia;
-    }
-
-    public void setRecursoMultimedia(String recursoMultimedia) {
-        this.recursoMultimedia = recursoMultimedia;
     }
 
     public void setModelo3D(String modelo3D) {

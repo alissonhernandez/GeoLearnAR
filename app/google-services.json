@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "756395888803",
+    "project_id": "guiaeducativaar-60891",
+    "storage_bucket": "guiaeducativaar-60891.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:756395888803:android:8164f7f6e0361351712f16",
+        "android_client_info": {
+          "package_name": "com.example.guiaeducativaar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHmZa33fwXwV8GsNvuWaHZV-oxuSlqMbk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -39,6 +39,15 @@
             android:gravity="center"
             android:layout_marginTop="32dp" />
 
+        <Button
+            android:id="@+id/btnProbarFirebase"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Probar Firebase"
+            android:backgroundTint="@color/primary_teal"
+            android:textColor="@color/white"
+            android:layout_marginTop="28dp" />
+
     </LinearLayout>
 
 </ScrollView>
