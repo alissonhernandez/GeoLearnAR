@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <fragment
-        android:id="@+id/arFragment"
-        android:name="com.google.ar.sceneform.ux.ArFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="@color/primary_teal">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Mueve el teléfono y toca una superficie para colocar el objeto 3D"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:background="#99000000"
-        android:padding="14dp" />
+        android:text="Realidad Aumentada"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:gravity="center" />
 
-</FrameLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Aquí se integrará ARCore para detectar planos, crear anchors, usar hitTest y colocar modelos 3D."
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

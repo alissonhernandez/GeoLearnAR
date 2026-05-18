@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
+    <!-- Paleta principal -->
+    <color name="primary_teal">#6FB3B4</color>
+    <color name="secondary_gray">#95A5A6</color>
+    <color name="accent_gold">#E6CE7E</color>
+    <color name="background_beige">#E3D5C5</color>
+    <color name="accent_brown">#D18E53</color>
+
+    <!-- Extras -->
+    <color name="white">#FFFFFF</color>
+    <color name="text_primary">#2D3436</color>
+    <color name="text_secondary">#5F6B6D</color>
+
 </resources>

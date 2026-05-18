@@ -23,8 +23,8 @@ public class ARActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_aractivity);
 
-        arFragment = (ArFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.arFragment);
+        //arFragment = (ArFragment) getSupportFragmentManager()
+                //.findFragmentById(R.id.arFragment);
 
         if (arFragment == null) {
             Toast.makeText(this, "No se pudo iniciar ARCore", Toast.LENGTH_SHORT).show();

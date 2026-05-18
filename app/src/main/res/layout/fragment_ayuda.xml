@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFC">
+    android:background="@color/background_beige">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,14 +16,14 @@
             android:text="Ayuda"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="#000B58" />
+            android:textColor="@color/primary_teal" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="1. Activa el GPS.\n\n2. Selecciona un punto educativo.\n\n3. Acércate al lugar indicado.\n\n4. Abre la cámara de realidad aumentada.\n\n5. Toca un plano para colocar el contenido 3D."
             android:textSize="16sp"
-            android:textColor="#334155"
+            android:textColor="@color/text_primary"
             android:layout_marginTop="16dp" />
 
     </LinearLayout>

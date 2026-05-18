@@ -1,25 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:background="#F8FAFC">
+    android:background="@color/background_beige">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Puntos educativos"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#000B58" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Aquí se mostrarán las estaciones registradas en Firebase."
-        android:textSize="15sp"
-        android:textColor="#334155"
-        android:layout_marginTop="8dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Puntos educativos"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_teal" />
 
-</LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Selecciona una estación educativa para ver su contenido."
+            android:textSize="15sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="20dp" />
+
+        <Button
+            android:id="@+id/btnPuntoDemo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Estación demo: Anatomía humana"
+            android:backgroundTint="@color/accent_brown"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+</ScrollView>
