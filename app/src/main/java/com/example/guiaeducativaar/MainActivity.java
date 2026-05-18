@@ -1,6 +1,8 @@
 package com.example.guiaeducativaar;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -9,10 +11,12 @@ import com.example.guiaeducativaar.fragments.AyudaFragment;
 import com.example.guiaeducativaar.fragments.HomeFragment;
 import com.example.guiaeducativaar.fragments.ListaPuntosFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigation;
+    FloatingActionButton btnAR;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNavigation = findViewById(R.id.bottomNavigation);
+        btnAR = findViewById(R.id.btnAR);
 
         cargarFragment(new HomeFragment());
 
@@ -39,6 +44,11 @@ public class MainActivity extends AppCompatActivity {
 
             return false;
         });
+
+        btnAR.setOnClickListener(v-> {
+            Intent intent = new Intent(MainActivity.this, ARActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void cargarFragment(Fragment fragment) {
@@ -47,4 +57,5 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.contenedorFragments, fragment)
                 .commit();
     }
+
 }
