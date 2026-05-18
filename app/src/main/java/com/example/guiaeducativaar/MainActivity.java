@@ -2,11 +2,11 @@ package com.example.guiaeducativaar;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.guiaeducativaar.ARActivity;
 import com.example.guiaeducativaar.fragments.AyudaFragment;
 import com.example.guiaeducativaar.fragments.HomeFragment;
 import com.example.guiaeducativaar.fragments.ListaPuntosFragment;
@@ -29,15 +29,20 @@ public class MainActivity extends AppCompatActivity {
         cargarFragment(new HomeFragment());
 
         bottomNavigation.setOnItemSelectedListener(item -> {
+
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
                 cargarFragment(new HomeFragment());
                 return true;
-            } else if (id == R.id.nav_puntos) {
+            }
+
+            if (id == R.id.nav_puntos) {
                 cargarFragment(new ListaPuntosFragment());
                 return true;
-            } else if (id == R.id.nav_ayuda) {
+            }
+
+            if (id == R.id.nav_ayuda) {
                 cargarFragment(new AyudaFragment());
                 return true;
             }
@@ -45,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        btnAR.setOnClickListener(v-> {
-            Intent intent = new Intent(MainActivity.this, ARActivity.class);
+        btnAR.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ARActivity.class);
             startActivity(intent);
         });
     }
@@ -57,5 +62,4 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.contenedorFragments, fragment)
                 .commit();
     }
-
 }

@@ -24,7 +24,10 @@
         <activity
             android:name=".ARActivity"
             android:exported="false" />
-        <activity android:name=".activities.DetallePuntoActivity" />
+
+        <activity
+            android:name=".activities.DetallePuntoActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

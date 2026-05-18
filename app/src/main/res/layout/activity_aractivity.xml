@@ -19,7 +19,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Aquí se integrará ARCore para detectar planos, crear anchors, usar hitTest y colocar modelos 3D."
+        android:text="Pantalla base para integrar ARCore, cámara, planos, anchors, hitTest y modelos 3D."
         android:textSize="16sp"
         android:textColor="@color/white"
         android:gravity="center"
