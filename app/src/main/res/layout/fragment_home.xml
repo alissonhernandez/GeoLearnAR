@@ -7,46 +7,77 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center_horizontal">
+        android:orientation="vertical">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Guía Educativa AR"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@color/primary_teal"
+            android:layout_height="210dp"
+            android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginTop="40dp" />
+            android:background="@drawable/bg_header"
+            android:padding="24dp">
 
-        <TextView
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Guía Educativa AR"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Explora, aprende y visualiza contenido educativo con realidad aumentada."
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Explora puntos educativos usando GPS, cámara y realidad aumentada."
-            android:textSize="16sp"
-            android:textColor="@color/text_secondary"
-            android:gravity="center"
-            android:layout_marginTop="12dp" />
+            android:orientation="vertical"
+            android:padding="22dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Selecciona una sección desde el menú inferior para comenzar."
-            android:textSize="15sp"
-            android:textColor="@color/text_primary"
-            android:gravity="center"
-            android:layout_marginTop="32dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:elevation="4dp">
 
-        <Button
-            android:id="@+id/btnProbarFirebase"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Probar Firebase"
-            android:backgroundTint="@color/primary_teal"
-            android:textColor="@color/white"
-            android:layout_marginTop="28dp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Funciones principales"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_teal" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="• Puntos educativos\n• Geolocalización\n• Realidad aumentada\n• Modelos 3D"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="14dp" />
+
+                <Button
+                    android:id="@+id/btnProbarFirebase"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Probar Firebase"
+                    android:textColor="@color/white"
+                    android:background="@drawable/bg_button_brown"
+                    android:layout_marginTop="20dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -1,40 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_beige">
+    android:background="@color/background_beige"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="145dp"
+        android:background="@drawable/bg_header"
+        android:gravity="center"
         android:orientation="vertical"
         android:padding="20dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="Puntos educativos"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/primary_teal" />
+            android:textColor="@color/white"
+            android:textSize="26sp"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Selecciona una estación educativa para ver su contenido."
-            android:textSize="15sp"
-            android:textColor="@color/text_secondary"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="20dp" />
-
-        <Button
-            android:id="@+id/btnPuntoDemo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Estación demo: Anatomía humana"
-            android:backgroundTint="@color/accent_brown"
-            android:textColor="@color/white" />
+            android:gravity="center"
+            android:text="Selecciona una estación para ver su contenido."
+            android:textColor="@color/white"
+            android:textSize="15sp" />
 
     </LinearLayout>
 
-</ScrollView>
+    <TextView
+        android:id="@+id/txtEstadoLista"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="18dp"
+        android:text="Cargando puntos educativos..."
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerPuntos"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="18dp" />
+
+</LinearLayout>
