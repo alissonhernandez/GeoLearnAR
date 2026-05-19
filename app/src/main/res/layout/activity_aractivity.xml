@@ -13,11 +13,19 @@
         android:id="@+id/txtInstruccionAR"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Mueve el celular y toca una superficie para colocar el objeto 3D"
+        android:text="Mueve el celular y toca una superficie para colocar contenido educativo AR"
         android:textColor="@android:color/white"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="14dp"
         android:background="#80000000" />
+
+    <Button
+        android:id="@+id/btnReiniciarAR"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reiniciar"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="24dp" />
 
 </FrameLayout>
