@@ -83,16 +83,16 @@ public class ListaPuntosFragment extends Fragment {
                 adapter.notifyDataSetChanged();
 
                 if (listaPuntos.isEmpty()) {
-                    txtEstadoLista.setText("No hay puntos educativos registrados.");
+                    txtEstadoLista.setText("No hay estaciones educativas registradas.");
                 } else {
-                    txtEstadoLista.setText("Puntos encontrados: " + listaPuntos.size());
+                    txtEstadoLista.setText("Estaciones encontradas: " + listaPuntos.size());
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
                 Toast.makeText(getContext(),
-                        "Error al cargar puntos: " + error.getMessage(),
+                        "Error al cargar estaciones: " + error.getMessage(),
                         Toast.LENGTH_LONG).show();
 
                 txtEstadoLista.setText("Error al cargar datos.");
