@@ -24,6 +24,9 @@ import java.util.Collection;
 
 public class ARActivity extends AppCompatActivity {
 
+    private String nombrePunto = "Punto Educativo";
+    private String descripcionPunto = "Contenido educativo AR";
+
     private CustomArFragment arFragment;
     private ModelRenderable modeloCubo;
     private AnchorNode anchorActual;
@@ -34,6 +37,8 @@ public class ARActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_aractivity);
+
+        recibirDatosDelPunto();
 
         arFragment = (CustomArFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.arFragment);
@@ -53,9 +58,26 @@ public class ARActivity extends AppCompatActivity {
             }
         });
 
-        arFragment.getArSceneView().getScene().addOnUpdateListener(frameTime -> detectarImagen());
+        arFragment.getArSceneView()
+                .getScene()
+                .addOnUpdateListener(frameTime -> detectarImagen());
 
         btnReiniciarAR.setOnClickListener(v -> reiniciarAR());
+    }
+
+    private void recibirDatosDelPunto() {
+        if (getIntent() != null) {
+            String nombre = getIntent().getStringExtra("nombre");
+            String descripcion = getIntent().getStringExtra("descripcion");
+
+            if (nombre != null && !nombre.isEmpty()) {
+                nombrePunto = nombre;
+            }
+
+            if (descripcion != null && !descripcion.isEmpty()) {
+                descripcionPunto = descripcion;
+            }
+        }
     }
 
     private void detectarImagen() {
@@ -102,12 +124,16 @@ public class ARActivity extends AppCompatActivity {
         nodo3D.setRenderable(modeloCubo);
         nodo3D.setLocalPosition(new Vector3(0f, 0.1f, 0f));
 
-        crearEtiqueta(anchorActual, "Punto Educativo\nModelo 3D interactivo");
+        crearEtiqueta(anchorActual, nombrePunto + "\n" + descripcionPunto);
 
         Toast.makeText(this, "Contenido colocado en superficie", Toast.LENGTH_SHORT).show();
     }
 
     private void colocarContenidoDeImagen(Anchor anchor) {
+        if (anchorActual != null) {
+            return;
+        }
+
         anchorActual = new AnchorNode(anchor);
         anchorActual.setParent(arFragment.getArSceneView().getScene());
 
@@ -116,7 +142,7 @@ public class ARActivity extends AppCompatActivity {
         nodo3D.setRenderable(modeloCubo);
         nodo3D.setLocalPosition(new Vector3(0f, 0.05f, 0f));
 
-        crearEtiqueta(anchorActual, "Cuaderno detectado\nContenido educativo AR");
+        crearEtiqueta(anchorActual, "Imagen detectada\n" + nombrePunto);
     }
 
     private void crearModeloBasico() {

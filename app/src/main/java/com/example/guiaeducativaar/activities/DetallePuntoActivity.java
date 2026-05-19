@@ -64,7 +64,12 @@ public class DetallePuntoActivity extends AppCompatActivity {
         });
 
         btnAbrirAR.setOnClickListener(v -> {
+
             Intent intent = new Intent(this, ARActivity.class);
+
+            intent.putExtra("nombre", nombre);
+            intent.putExtra("descripcion", descripcion);
+
             startActivity(intent);
         });
     }
