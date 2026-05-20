@@ -3,10 +3,13 @@ package com.example.guiaeducativaar.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +26,9 @@ import com.google.android.gms.location.LocationServices;
 public class DetallePuntoActivity extends AppCompatActivity {
 
     private TextView txtNombreDetalle, txtDescripcionDetalle, txtCoordenadas;
+    private TextView txtMensajeEstado;
+    private LinearLayout contenedorEstado;
+
     private Button btnVerificarUbicacion, btnAbrirAR;
     private ImageView imgReferencia;
 
@@ -35,6 +41,9 @@ public class DetallePuntoActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<String> permisoUbicacionLauncher;
 
+    private String nombre;
+    private String descripcion;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +52,10 @@ public class DetallePuntoActivity extends AppCompatActivity {
         txtNombreDetalle = findViewById(R.id.txtNombreDetalle);
         txtDescripcionDetalle = findViewById(R.id.txtDescripcionDetalle);
         txtCoordenadas = findViewById(R.id.txtCoordenadas);
+
+        contenedorEstado = findViewById(R.id.contenedorEstado);
+        txtMensajeEstado = findViewById(R.id.txtMensajeEstado);
+
         btnVerificarUbicacion = findViewById(R.id.btnVerificarUbicacion);
         btnAbrirAR = findViewById(R.id.btnAbrirAR);
         imgReferencia = findViewById(R.id.imgReferencia);
@@ -51,14 +64,14 @@ public class DetallePuntoActivity extends AppCompatActivity {
 
         configurarPermisoUbicacion();
 
-        String nombre = getIntent().getStringExtra("nombre");
-        String descripcion = getIntent().getStringExtra("descripcion");
+        nombre = getIntent().getStringExtra("nombre");
+        descripcion = getIntent().getStringExtra("descripcion");
         String latitud = getIntent().getStringExtra("latitud");
         String longitud = getIntent().getStringExtra("longitud");
         String imagen = getIntent().getStringExtra("imagenReferencia");
 
-        txtNombreDetalle.setText(nombre);
-        txtDescripcionDetalle.setText(descripcion);
+        txtNombreDetalle.setText(nombre != null ? nombre : "Estación educativa");
+        txtDescripcionDetalle.setText(descripcion != null ? descripcion : "Sin descripción");
 
         try {
             latitudPunto = Double.parseDouble(latitud);
@@ -66,6 +79,7 @@ public class DetallePuntoActivity extends AppCompatActivity {
         } catch (Exception e) {
             latitudPunto = 0;
             longitudPunto = 0;
+            mostrarEstado("error", "Las coordenadas de esta estación no son válidas.");
         }
 
         txtCoordenadas.setText(
@@ -80,6 +94,9 @@ public class DetallePuntoActivity extends AppCompatActivity {
                 imgReferencia.setImageResource(R.drawable.android);
             }
         }
+
+        btnAbrirAR.setEnabled(false);
+        mostrarEstado("info", "Presiona verificar ubicación para comprobar si estás cerca de esta estación.");
 
         btnVerificarUbicacion.setOnClickListener(v -> verificarPermisoYUbicacion());
 
@@ -98,23 +115,24 @@ public class DetallePuntoActivity extends AppCompatActivity {
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
                     if (isGranted) {
+                        mostrarEstado("info", "Permiso concedido. Obteniendo ubicación actual...");
                         obtenerUbicacionActual();
                     } else {
-                        Toast.makeText(this,
-                                "Permiso de ubicación denegado. No se puede verificar la cercanía.",
-                                Toast.LENGTH_LONG).show();
+                        mostrarEstado("error", "Permiso de ubicación denegado. No se puede verificar la cercanía.");
+                        Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_LONG).show();
                     }
                 }
         );
     }
 
     private void verificarPermisoYUbicacion() {
+        mostrarEstado("info", "Buscando tu ubicación actual...");
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-
             obtenerUbicacionActual();
-
         } else {
+            mostrarEstado("advertencia", "La app necesita permiso de ubicación para verificar la distancia.");
             permisoUbicacionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
         }
     }
@@ -122,6 +140,7 @@ public class DetallePuntoActivity extends AppCompatActivity {
     private void obtenerUbicacionActual() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+            mostrarEstado("error", "No hay permiso de ubicación.");
             return;
         }
 
@@ -130,14 +149,14 @@ public class DetallePuntoActivity extends AppCompatActivity {
                     if (location != null) {
                         calcularDistancia(location);
                     } else {
-                        Toast.makeText(this,
-                                "No se pudo obtener la ubicación. Activa el GPS e intenta de nuevo.",
-                                Toast.LENGTH_LONG).show();
+                        mostrarEstado("advertencia", "No se pudo obtener la ubicación. Activa el GPS y vuelve a intentar.");
+                        Toast.makeText(this, "Activa el GPS e intenta de nuevo", Toast.LENGTH_LONG).show();
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(this,
-                        "Error al obtener ubicación: " + e.getMessage(),
-                        Toast.LENGTH_LONG).show());
+                .addOnFailureListener(e -> {
+                    mostrarEstado("error", "Error al obtener ubicación: " + e.getMessage());
+                    Toast.makeText(this, "Error al obtener ubicación", Toast.LENGTH_LONG).show();
+                });
     }
 
     private void calcularDistancia(Location ubicacionUsuario) {
@@ -146,20 +165,42 @@ public class DetallePuntoActivity extends AppCompatActivity {
         ubicacionPunto.setLongitude(longitudPunto);
 
         float distancia = ubicacionUsuario.distanceTo(ubicacionPunto);
+        int distanciaRedondeada = Math.round(distancia);
 
         if (distancia <= RADIO_PERMITIDO_METROS) {
-            Toast.makeText(this,
-                    "Estás cerca de esta estación. Distancia: " + Math.round(distancia) + " m",
-                    Toast.LENGTH_LONG).show();
-
+            mostrarEstado("correcto", "Estás cerca de esta estación. Distancia: " + distanciaRedondeada + " m. Punto desbloqueado.");
             btnAbrirAR.setEnabled(true);
-
         } else {
-            Toast.makeText(this,
-                    "Estás lejos de esta estación. Distancia aproximada: " + Math.round(distancia) + " m",
-                    Toast.LENGTH_LONG).show();
-
+            mostrarEstado("advertencia", "Estás lejos de esta estación. Distancia aproximada: " + distanciaRedondeada + " m.");
             btnAbrirAR.setEnabled(false);
+        }
+    }
+
+    private void mostrarEstado(String tipo, String mensaje) {
+        contenedorEstado.setVisibility(View.VISIBLE);
+        txtMensajeEstado.setText(mensaje);
+
+        switch (tipo) {
+            case "error":
+                contenedorEstado.setBackgroundColor(Color.parseColor("#F8D7DA"));
+                txtMensajeEstado.setTextColor(Color.parseColor("#842029"));
+                break;
+
+            case "advertencia":
+                contenedorEstado.setBackgroundColor(Color.parseColor("#FFF3CD"));
+                txtMensajeEstado.setTextColor(Color.parseColor("#5C4300"));
+                break;
+
+            case "correcto":
+                contenedorEstado.setBackgroundColor(Color.parseColor("#D1E7DD"));
+                txtMensajeEstado.setTextColor(Color.parseColor("#0F5132"));
+                break;
+
+            case "info":
+            default:
+                contenedorEstado.setBackgroundColor(Color.parseColor("#CFE2FF"));
+                txtMensajeEstado.setTextColor(Color.parseColor("#084298"));
+                break;
         }
     }
 }

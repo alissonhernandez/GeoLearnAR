@@ -3,107 +3,142 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"> <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="170dp"
-        android:background="@drawable/bg_header"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <TextView
-            android:id="@+id/txtNombreDetalle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Nombre del punto"
-            android:textColor="@color/white"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
+    android:background="@color/background_light">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="22dp">
-
-        <ImageView
-            android:id="@+id/imgReferencia"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:scaleType="centerCrop"
-            android:background="@drawable/bg_card"
-            android:clipToOutline="true" /> <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:background="@drawable/bg_card"
-        android:elevation="4dp"
         android:orientation="vertical">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Descripción"
-            android:textColor="@color/purple_dark" android:textSize="20sp"
-            android:textStyle="bold" />
+            android:layout_height="170dp"
+            android:background="@drawable/bg_header"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <TextView
-            android:id="@+id/txtDescripcionDetalle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="@color/text_dark" android:textSize="15sp" />
+            <TextView
+                android:id="@+id/txtNombreDetalle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Nombre del punto"
+                android:textColor="@color/white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Ubicación"
-            android:textColor="@color/purple_dark" android:textSize="20sp"
-            android:textStyle="bold" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/txtCoordenadas"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="@color/text_muted" android:textSize="15sp" />
+            android:orientation="vertical"
+            android:padding="22dp">
 
-        <Button
-            android:id="@+id/btnVerificarUbicacion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:backgroundTint="@color/purple_light"
-            android:text="Verificar ubicación"
-            android:textColor="@color/purple_dark"
-            android:textAllCaps="false"
-            android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/imgReferencia"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="@drawable/bg_card"
+                android:clipToOutline="true"
+                android:scaleType="centerCrop" />
 
-        <Button
-            android:id="@+id/btnAbrirAR"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:backgroundTint="@color/purple_primary"
-            android:text="Explorar en realidad aumentada"
-            android:textColor="@color/white"
-            android:textAllCaps="false"
-            android:textStyle="bold"
-            android:enabled="true"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_card"
+                android:elevation="4dp"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Descripción"
+                    android:textColor="@color/purple_dark"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtDescripcionDetalle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/text_dark"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Ubicación"
+                    android:textColor="@color/purple_dark"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtCoordenadas"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/text_muted"
+                    android:textSize="15sp" />
+
+                <LinearLayout
+                    android:id="@+id/contenedorEstado"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:background="#CFE2FF"
+                    android:gravity="center_vertical"
+                    android:minHeight="80dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="18dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/txtMensajeEstado"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingExtra="2dp"
+                        android:maxLines="4"
+                        android:text="Mensaje de estado"
+                        android:textColor="#084298"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnVerificarUbicacion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:backgroundTint="@color/purple_light"
+                    android:text="Verificar ubicación"
+                    android:textAllCaps="false"
+                    android:textColor="@color/purple_dark"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnAbrirAR"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:backgroundTint="@color/purple_primary"
+                    android:enabled="false"
+                    android:text="Explorar en realidad aumentada"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
-
-    </LinearLayout>
-
-</LinearLayout>
 
 </ScrollView>
