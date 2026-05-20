@@ -1,7 +1,16 @@
 package com.example.guiaeducativaar.activities;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -11,20 +20,27 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.guiaeducativaar.R;
 import com.example.guiaeducativaar.firebase.FirebaseHelper;
 import com.example.guiaeducativaar.models.PuntoEducativo;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.List;
+import java.util.Locale;
 
 public class FormularioPuntoActivity extends AppCompatActivity {
 
     private TextView txtTituloFormulario;
     private TextInputEditText edtNombre, edtDescripcion, edtLatitud, edtLongitud;
-    private TextView txtImagenSeleccionada, txtModeloSeleccionado;
-    private Button btnGuardar, btnEliminar;
+    private TextView txtImagenSeleccionada, txtModeloSeleccionado, txtDireccionActual;
+    private Button btnGuardar, btnEliminar, btnUsarUbicacionActual, btnVerUbicacionMapa;
 
     private String idPunto;
     private boolean modoEditar = false;
@@ -37,6 +53,9 @@ public class FormularioPuntoActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<String> seleccionarImagenLauncher;
     private ActivityResultLauncher<String> seleccionarModeloLauncher;
+    private ActivityResultLauncher<String> permisoUbicacionLauncher;
+
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,24 +71,31 @@ public class FormularioPuntoActivity extends AppCompatActivity {
 
         txtImagenSeleccionada = findViewById(R.id.txtImagenSeleccionada);
         txtModeloSeleccionado = findViewById(R.id.txtModeloSeleccionado);
+        txtDireccionActual = findViewById(R.id.txtDireccionActual);
 
         Button btnSeleccionarImagen = findViewById(R.id.btnSeleccionarImagen);
         Button btnSeleccionarModelo = findViewById(R.id.btnSeleccionarModelo);
 
+        btnUsarUbicacionActual = findViewById(R.id.btnUsarUbicacionActual);
+        btnVerUbicacionMapa = findViewById(R.id.btnVerUbicacionMapa);
+
         btnGuardar = findViewById(R.id.btnGuardar);
         btnEliminar = findViewById(R.id.btnEliminar);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         configurarSelectoresArchivos();
+        configurarPermisoUbicacion();
         recibirDatos();
 
         ImageButton btnRegresar = findViewById(R.id.btnRegresar);
         btnRegresar.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         btnSeleccionarImagen.setOnClickListener(v -> seleccionarImagenLauncher.launch("image/*"));
-
-        // IMPORTANTE:
-        // Usamos application/octet-stream y */* para que Android deje elegir archivos .glb.
         btnSeleccionarModelo.setOnClickListener(v -> seleccionarModeloLauncher.launch("*/*"));
+
+        btnUsarUbicacionActual.setOnClickListener(v -> verificarPermisoYObtenerUbicacion());
+        btnVerUbicacionMapa.setOnClickListener(v -> abrirMapa());
 
         btnGuardar.setOnClickListener(v -> guardarPunto());
         btnEliminar.setOnClickListener(v -> eliminarPunto());
@@ -99,6 +125,159 @@ public class FormularioPuntoActivity extends AppCompatActivity {
         );
     }
 
+    private void configurarPermisoUbicacion() {
+        permisoUbicacionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        obtenerUbicacionActual();
+                    } else {
+                        Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+    }
+
+    private void verificarPermisoYObtenerUbicacion() {
+        if (!gpsActivo()) {
+            Toast.makeText(this, "Activa el GPS para tomar la ubicación actual", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            return;
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            obtenerUbicacionActual();
+        } else {
+            permisoUbicacionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+
+    private boolean gpsActivo() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager != null &&
+                (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                        || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
+    }
+
+    private void obtenerUbicacionActual() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "No hay permiso de ubicación", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        btnUsarUbicacionActual.setEnabled(false);
+        btnUsarUbicacionActual.setText("Obteniendo ubicación...");
+        txtDireccionActual.setText("Ubicación: buscando dirección...");
+
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(location -> {
+                    btnUsarUbicacionActual.setEnabled(true);
+                    btnUsarUbicacionActual.setText("Usar mi ubicación actual");
+
+                    if (location != null) {
+                        colocarUbicacion(location);
+                    } else {
+                        txtDireccionActual.setText("Ubicación: no se pudo obtener");
+                        Toast.makeText(this, "No se pudo obtener ubicación. Intenta de nuevo.", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    btnUsarUbicacionActual.setEnabled(true);
+                    btnUsarUbicacionActual.setText("Usar mi ubicación actual");
+                    txtDireccionActual.setText("Ubicación: error al obtener ubicación");
+                    Toast.makeText(this, "Error obteniendo ubicación: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+    }
+
+    private void colocarUbicacion(Location location) {
+        double latitud = location.getLatitude();
+        double longitud = location.getLongitude();
+
+        edtLatitud.setText(String.valueOf(latitud));
+        edtLongitud.setText(String.valueOf(longitud));
+
+        btnVerUbicacionMapa.setEnabled(true);
+        obtenerDireccionDesdeCoordenadas(latitud, longitud);
+
+        Toast.makeText(this, "Ubicación actual tomada correctamente", Toast.LENGTH_SHORT).show();
+    }
+    private void obtenerDireccionDesdeCoordenadas(double latitud, double longitud) {
+        try {
+            Geocoder geocoder = new Geocoder(this, new Locale("es", "SV"));
+            List<Address> direcciones = geocoder.getFromLocation(latitud, longitud, 1);
+
+            if (direcciones != null && !direcciones.isEmpty()) {
+                Address direccion = direcciones.get(0);
+
+                String lugar = direccion.getFeatureName();
+                String colonia = direccion.getSubLocality();
+                String ciudad = direccion.getLocality();
+                String departamento = direccion.getAdminArea();
+                String pais = direccion.getCountryName();
+
+                String textoDireccion = "";
+
+                if (lugar != null && !lugar.matches("^[A-Z0-9]+\\+[A-Z0-9]+.*")) {
+                    textoDireccion = lugar;
+                }
+
+                if (colonia != null && !colonia.isEmpty()) {
+                    textoDireccion += textoDireccion.isEmpty() ? colonia : ", " + colonia;
+                }
+
+                if (ciudad != null && !ciudad.isEmpty()) {
+                    textoDireccion += textoDireccion.isEmpty() ? ciudad : ", " + ciudad;
+                }
+
+                if (departamento != null && !departamento.isEmpty()) {
+                    textoDireccion += textoDireccion.isEmpty() ? departamento : ", " + departamento;
+                }
+
+                if (pais != null && !pais.isEmpty()) {
+                    textoDireccion += textoDireccion.isEmpty() ? pais : ", " + pais;
+                }
+
+                if (!textoDireccion.isEmpty()) {
+                    txtDireccionActual.setText("Ubicación: " + textoDireccion);
+                } else {
+                    txtDireccionActual.setText("Ubicación aproximada: " + latitud + ", " + longitud);
+                }
+
+            } else {
+                txtDireccionActual.setText("Ubicación obtenida, sin dirección exacta");
+            }
+
+        } catch (Exception e) {
+            txtDireccionActual.setText("Ubicación obtenida, sin dirección disponible");
+        }
+    }
+
+    private void abrirMapa() {
+        String latitudTexto = edtLatitud.getText().toString().trim();
+        String longitudTexto = edtLongitud.getText().toString().trim();
+
+        if (latitudTexto.isEmpty() || longitudTexto.isEmpty()) {
+            Toast.makeText(this, "Primero toma la ubicación actual", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String uri = "geo:" + latitudTexto + "," + longitudTexto +
+                "?q=" + latitudTexto + "," + longitudTexto + "(Estación educativa)";
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        intent.setPackage("com.google.android.apps.maps");
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Intent navegador = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://www.google.com/maps/search/?api=1&query=" + latitudTexto + "," + longitudTexto));
+            startActivity(navegador);
+        }
+    }
+
     private void recibirDatos() {
         idPunto = getIntent().getStringExtra("id");
 
@@ -123,6 +302,20 @@ public class FormularioPuntoActivity extends AppCompatActivity {
 
             if (modeloUrlActual != null && !modeloUrlActual.isEmpty()) {
                 txtModeloSeleccionado.setText("Modelo actual cargado");
+            }
+
+            if (edtLatitud.getText() != null && edtLongitud.getText() != null &&
+                    !edtLatitud.getText().toString().isEmpty() &&
+                    !edtLongitud.getText().toString().isEmpty()) {
+                btnVerUbicacionMapa.setEnabled(true);
+
+                try {
+                    double lat = Double.parseDouble(edtLatitud.getText().toString());
+                    double lon = Double.parseDouble(edtLongitud.getText().toString());
+                    obtenerDireccionDesdeCoordenadas(lat, lon);
+                } catch (Exception e) {
+                    txtDireccionActual.setText("Ubicación guardada, sin dirección disponible");
+                }
             }
         }
     }
@@ -150,13 +343,8 @@ public class FormularioPuntoActivity extends AppCompatActivity {
             hayError = true;
         }
 
-        if (latitudTexto.isEmpty()) {
-            edtLatitud.setError("Debes obtener la ubicación actual");
-            hayError = true;
-        }
-
-        if (longitudTexto.isEmpty()) {
-            edtLongitud.setError("Debes obtener la ubicación actual");
+        if (latitudTexto.isEmpty() || longitudTexto.isEmpty()) {
+            Toast.makeText(this, "Debes tomar la ubicación actual antes de guardar", Toast.LENGTH_LONG).show();
             hayError = true;
         }
 
@@ -171,7 +359,6 @@ public class FormularioPuntoActivity extends AppCompatActivity {
         }
 
         if (hayError) {
-            Toast.makeText(this, "Revisa los campos antes de guardar", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -183,18 +370,6 @@ public class FormularioPuntoActivity extends AppCompatActivity {
             longitud = Double.parseDouble(longitudTexto);
         } catch (Exception e) {
             Toast.makeText(this, "La ubicación no es válida", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        if (latitud < -90 || latitud > 90) {
-            edtLatitud.setError("La latitud debe estar entre -90 y 90");
-            Toast.makeText(this, "Latitud inválida", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        if (longitud < -180 || longitud > 180) {
-            edtLongitud.setError("La longitud debe estar entre -180 y 180");
-            Toast.makeText(this, "Longitud inválida", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -234,13 +409,8 @@ public class FormularioPuntoActivity extends AppCompatActivity {
     }
 
     private void subirArchivo(Uri uri, String carpeta, OnArchivoSubido listener) {
-        String nombreArchivo = carpeta + "_" + System.currentTimeMillis();
-
-        if (carpeta.equals("imagenes")) {
-            nombreArchivo = nombreArchivo + ".jpg";
-        } else if (carpeta.equals("modelos3d")) {
-            nombreArchivo = nombreArchivo + ".glb";
-        }
+        String extension = carpeta.equals("modelos3d") ? ".glb" : ".jpg";
+        String nombreArchivo = carpeta + "_" + System.currentTimeMillis() + extension;
 
         StorageReference referencia = FirebaseStorage.getInstance()
                 .getReference()
@@ -249,7 +419,7 @@ public class FormularioPuntoActivity extends AppCompatActivity {
 
         referencia.putFile(uri)
                 .addOnSuccessListener(taskSnapshot ->
-                        referencia.getDownloadUrl()
+                        taskSnapshot.getStorage().getDownloadUrl()
                                 .addOnSuccessListener(downloadUri ->
                                         listener.onSubido(downloadUri.toString())
                                 )
