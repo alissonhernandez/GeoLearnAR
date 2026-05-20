@@ -3,7 +3,7 @@ package com.example.guiaeducativaar.activities;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,11 +12,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.guiaeducativaar.R;
 import com.example.guiaeducativaar.firebase.FirebaseHelper;
 import com.example.guiaeducativaar.models.PuntoEducativo;
+import com.google.android.material.textfield.TextInputEditText;
 
 public class FormularioPuntoActivity extends AppCompatActivity {
 
     private TextView txtTituloFormulario;
-    private EditText edtNombre, edtDescripcion, edtLatitud, edtLongitud, edtImagen, edtModelo;
+    private TextInputEditText edtNombre, edtDescripcion, edtLatitud, edtLongitud, edtImagen, edtModelo;
     private Button btnGuardar, btnEliminar;
 
     private String idPunto;
@@ -28,16 +29,26 @@ public class FormularioPuntoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_formulario_punto);
 
         txtTituloFormulario = findViewById(R.id.txtTituloFormulario);
+
         edtNombre = findViewById(R.id.edtNombre);
         edtDescripcion = findViewById(R.id.edtDescripcion);
         edtLatitud = findViewById(R.id.edtLatitud);
         edtLongitud = findViewById(R.id.edtLongitud);
         edtImagen = findViewById(R.id.edtImagen);
         edtModelo = findViewById(R.id.edtModelo);
+
         btnGuardar = findViewById(R.id.btnGuardar);
         btnEliminar = findViewById(R.id.btnEliminar);
 
         recibirDatos();
+
+        ImageButton btnRegresar = findViewById(R.id.btnRegresar);
+        btnRegresar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
 
         btnGuardar.setOnClickListener(v -> guardarPunto());
         btnEliminar.setOnClickListener(v -> eliminarPunto());
