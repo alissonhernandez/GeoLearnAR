@@ -1,7 +1,10 @@
 package com.example.guiaeducativaar;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,9 +18,7 @@ import com.google.ar.core.TrackingState;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Vector3;
-import com.google.ar.sceneform.rendering.MaterialFactory;
 import com.google.ar.sceneform.rendering.ModelRenderable;
-import com.google.ar.sceneform.rendering.ShapeFactory;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 
 import java.util.Collection;
@@ -28,10 +29,12 @@ public class ARActivity extends AppCompatActivity {
     private String descripcionPunto = "Contenido educativo AR";
 
     private CustomArFragment arFragment;
-    private ModelRenderable modeloCubo;
+    private ModelRenderable modeloCuaderno;
     private AnchorNode anchorActual;
     private Button btnReiniciarAR;
+
     private boolean imagenDetectada = false;
+    private boolean puedeDetectar = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,13 +53,7 @@ public class ARActivity extends AppCompatActivity {
             return;
         }
 
-        crearModeloBasico();
-
-        arFragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) -> {
-            if (!imagenDetectada) {
-                colocarContenidoEnPlano(hitResult.createAnchor());
-            }
-        });
+        cargarModeloGLB();
 
         arFragment.getArSceneView()
                 .getScene()
@@ -80,10 +77,25 @@ public class ARActivity extends AppCompatActivity {
         }
     }
 
+    private void cargarModeloGLB() {
+        ModelRenderable.builder()
+                .setSource(this, Uri.parse("cuaderno.glb"))
+                .setIsFilamentGltf(true)
+                .build()
+                .thenAccept(renderable -> {
+                    modeloCuaderno = renderable;
+                    Toast.makeText(this, "Modelo 3D listo", Toast.LENGTH_SHORT).show();
+                })
+                .exceptionally(throwable -> {
+                    Toast.makeText(this, "Error cargando cuaderno.glb", Toast.LENGTH_LONG).show();
+                    return null;
+                });
+    }
+
     private void detectarImagen() {
         Frame frame = arFragment.getArSceneView().getArFrame();
 
-        if (frame == null || modeloCubo == null || imagenDetectada) {
+        if (frame == null || modeloCuaderno == null || imagenDetectada || !puedeDetectar) {
             return;
         }
 
@@ -95,7 +107,7 @@ public class ARActivity extends AppCompatActivity {
                     && "cuaderno".equals(imagen.getName())) {
 
                 Anchor anchor = imagen.createAnchor(imagen.getCenterPose());
-                colocarContenidoDeImagen(anchor);
+                colocarModeloSobreImagen(anchor);
 
                 imagenDetectada = true;
 
@@ -105,31 +117,7 @@ public class ARActivity extends AppCompatActivity {
         }
     }
 
-    private void colocarContenidoEnPlano(Anchor anchor) {
-        if (modeloCubo == null) {
-            Toast.makeText(this, "Cargando modelo 3D...", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (anchorActual != null) {
-            Toast.makeText(this, "Presiona Reiniciar para colocar otro objeto", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        anchorActual = new AnchorNode(anchor);
-        anchorActual.setParent(arFragment.getArSceneView().getScene());
-
-        Node nodo3D = new Node();
-        nodo3D.setParent(anchorActual);
-        nodo3D.setRenderable(modeloCubo);
-        nodo3D.setLocalPosition(new Vector3(0f, 0.1f, 0f));
-
-        crearEtiqueta(anchorActual, nombrePunto + "\n" + descripcionPunto);
-
-        Toast.makeText(this, "Contenido colocado en superficie", Toast.LENGTH_SHORT).show();
-    }
-
-    private void colocarContenidoDeImagen(Anchor anchor) {
+    private void colocarModeloSobreImagen(Anchor anchor) {
         if (anchorActual != null) {
             return;
         }
@@ -139,26 +127,13 @@ public class ARActivity extends AppCompatActivity {
 
         Node nodo3D = new Node();
         nodo3D.setParent(anchorActual);
-        nodo3D.setRenderable(modeloCubo);
-        nodo3D.setLocalPosition(new Vector3(0f, 0.05f, 0f));
+        nodo3D.setRenderable(modeloCuaderno);
+
+        // MÁS PEQUEÑO Y MÁS PEGADO AL CUADERNO
+        nodo3D.setLocalPosition(new Vector3(0f, 0.01f, 0f));
+        nodo3D.setLocalScale(new Vector3(0.10f, 0.10f, 0.10f));
 
         crearEtiqueta(anchorActual, "Imagen detectada\n" + nombrePunto);
-    }
-
-    private void crearModeloBasico() {
-        MaterialFactory.makeOpaqueWithColor(
-                this,
-                new com.google.ar.sceneform.rendering.Color(Color.rgb(0, 150, 136))
-        ).thenAccept(material -> {
-            modeloCubo = ShapeFactory.makeCube(
-                    new Vector3(0.20f, 0.20f, 0.20f),
-                    new Vector3(0f, 0.10f, 0f),
-                    material
-            );
-        }).exceptionally(throwable -> {
-            Toast.makeText(this, "Error cargando modelo 3D", Toast.LENGTH_LONG).show();
-            return null;
-        });
     }
 
     private void crearEtiqueta(AnchorNode anchorNode, String texto) {
@@ -166,7 +141,7 @@ public class ARActivity extends AppCompatActivity {
         textView.setText(texto);
         textView.setTextColor(Color.WHITE);
         textView.setTextSize(10);
-        textView.setBackgroundColor(Color.argb(190, 0, 11, 88));
+        textView.setBackgroundColor(Color.argb(190, 126, 87, 194));
         textView.setPadding(14, 10, 14, 10);
 
         ViewRenderable.builder()
@@ -176,12 +151,14 @@ public class ARActivity extends AppCompatActivity {
                     Node textoNode = new Node();
                     textoNode.setParent(anchorNode);
                     textoNode.setRenderable(renderable);
-                    textoNode.setLocalPosition(new Vector3(0f, 0.35f, 0f));
-                    textoNode.setLocalScale(new Vector3(0.35f, 0.35f, 0.35f));
+                    textoNode.setLocalPosition(new Vector3(0f, 0.30f, 0f));
+                    textoNode.setLocalScale(new Vector3(0.30f, 0.30f, 0.30f));
                 });
     }
 
     private void reiniciarAR() {
+        puedeDetectar = false;
+
         if (anchorActual != null) {
             arFragment.getArSceneView().getScene().removeChild(anchorActual);
 
@@ -194,6 +171,10 @@ public class ARActivity extends AppCompatActivity {
 
         imagenDetectada = false;
 
-        Toast.makeText(this, "Contenido AR reiniciado", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "AR reiniciado. Aleja la cámara y vuelve a escanear.", Toast.LENGTH_SHORT).show();
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            puedeDetectar = true;
+        }, 2000);
     }
 }
