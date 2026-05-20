@@ -99,7 +99,8 @@
                     android:layout_marginTop="12dp"
                     android:backgroundTint="@color/accent_brown"
                     android:text="Explorar en realidad aumentada"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:enabled="true"/>
 
             </LinearLayout>
 

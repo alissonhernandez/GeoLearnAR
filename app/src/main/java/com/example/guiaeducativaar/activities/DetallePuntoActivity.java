@@ -1,22 +1,39 @@
 package com.example.guiaeducativaar.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.guiaeducativaar.ARActivity;
 import com.example.guiaeducativaar.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 public class DetallePuntoActivity extends AppCompatActivity {
 
     private TextView txtNombreDetalle, txtDescripcionDetalle, txtCoordenadas;
     private Button btnVerificarUbicacion, btnAbrirAR;
     private ImageView imgReferencia;
+
+    private FusedLocationProviderClient fusedLocationClient;
+
+    private double latitudPunto;
+    private double longitudPunto;
+
+    private final float RADIO_PERMITIDO_METROS = 50f;
+
+    private ActivityResultLauncher<String> permisoUbicacionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,11 +43,13 @@ public class DetallePuntoActivity extends AppCompatActivity {
         txtNombreDetalle = findViewById(R.id.txtNombreDetalle);
         txtDescripcionDetalle = findViewById(R.id.txtDescripcionDetalle);
         txtCoordenadas = findViewById(R.id.txtCoordenadas);
-
         btnVerificarUbicacion = findViewById(R.id.btnVerificarUbicacion);
         btnAbrirAR = findViewById(R.id.btnAbrirAR);
-
         imgReferencia = findViewById(R.id.imgReferencia);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        configurarPermisoUbicacion();
 
         String nombre = getIntent().getStringExtra("nombre");
         String descripcion = getIntent().getStringExtra("descripcion");
@@ -41,36 +60,106 @@ public class DetallePuntoActivity extends AppCompatActivity {
         txtNombreDetalle.setText(nombre);
         txtDescripcionDetalle.setText(descripcion);
 
+        try {
+            latitudPunto = Double.parseDouble(latitud);
+            longitudPunto = Double.parseDouble(longitud);
+        } catch (Exception e) {
+            latitudPunto = 0;
+            longitudPunto = 0;
+        }
+
         txtCoordenadas.setText(
-                "Latitud: " + latitud +
-                        "\nLongitud: " + longitud
+                "Latitud: " + latitudPunto +
+                        "\nLongitud: " + longitudPunto
         );
 
         if (imagen != null) {
-
             if (imagen.contains("microprogramacion")) {
                 imgReferencia.setImageResource(R.drawable.microprogramacion);
-            }
-
-            else if (imagen.contains("android")) {
+            } else if (imagen.contains("android")) {
                 imgReferencia.setImageResource(R.drawable.android);
             }
         }
 
-        btnVerificarUbicacion.setOnClickListener(v -> {
-            Toast.makeText(this,
-                    "GPS se implementará con coordenadas reales",
-                    Toast.LENGTH_SHORT).show();
-        });
+        btnVerificarUbicacion.setOnClickListener(v -> verificarPermisoYUbicacion());
 
         btnAbrirAR.setOnClickListener(v -> {
-
             Intent intent = new Intent(this, ARActivity.class);
-
             intent.putExtra("nombre", nombre);
             intent.putExtra("descripcion", descripcion);
-
+            intent.putExtra("latitud", String.valueOf(latitudPunto));
+            intent.putExtra("longitud", String.valueOf(longitudPunto));
             startActivity(intent);
         });
+    }
+
+    private void configurarPermisoUbicacion() {
+        permisoUbicacionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        obtenerUbicacionActual();
+                    } else {
+                        Toast.makeText(this,
+                                "Permiso de ubicación denegado. No se puede verificar la cercanía.",
+                                Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+    }
+
+    private void verificarPermisoYUbicacion() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            obtenerUbicacionActual();
+
+        } else {
+            permisoUbicacionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+
+    private void obtenerUbicacionActual() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(location -> {
+                    if (location != null) {
+                        calcularDistancia(location);
+                    } else {
+                        Toast.makeText(this,
+                                "No se pudo obtener la ubicación. Activa el GPS e intenta de nuevo.",
+                                Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(this,
+                        "Error al obtener ubicación: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show());
+    }
+
+    private void calcularDistancia(Location ubicacionUsuario) {
+        Location ubicacionPunto = new Location("puntoEducativo");
+        ubicacionPunto.setLatitude(latitudPunto);
+        ubicacionPunto.setLongitude(longitudPunto);
+
+        float distancia = ubicacionUsuario.distanceTo(ubicacionPunto);
+
+        if (distancia <= RADIO_PERMITIDO_METROS) {
+            Toast.makeText(this,
+                    "Estás cerca de esta estación. Distancia: " + Math.round(distancia) + " m",
+                    Toast.LENGTH_LONG).show();
+
+            btnAbrirAR.setEnabled(true);
+
+        } else {
+            Toast.makeText(this,
+                    "Estás lejos de esta estación. Distancia aproximada: " + Math.round(distancia) + " m",
+                    Toast.LENGTH_LONG).show();
+
+            btnAbrirAR.setEnabled(false);
+        }
     }
 }
