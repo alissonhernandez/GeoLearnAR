@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -17,8 +16,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class HomeFragment extends Fragment {
 
-    private Button btnProbarFirebase;
-
     public HomeFragment() {
     }
 
@@ -27,10 +24,6 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
-        btnProbarFirebase = view.findViewById(R.id.btnProbarFirebase);
-
-        btnProbarFirebase.setOnClickListener(v -> probarConexionFirebase());
 
         return view;
     }

@@ -4,23 +4,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_beige">
+    android:background="@color/background_light">
 
     <FrameLayout
         android:id="@+id/contenedorFragments"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="60dp" >
+        android:paddingBottom="64dp" >
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnAR"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="76dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="84dp"
             android:contentDescription="Abrir Realidad Aumentada"
-            app:backgroundTint="@color/accent_brown"
+            app:backgroundTint="@color/purple_primary"
+            app:elevation="6dp"
+            app:fabSize="normal"
+            app:pressedTranslationZ="12dp"
             app:srcCompat="@android:drawable/ic_menu_camera"
             app:tint="@color/white" />
     </FrameLayout>
@@ -28,12 +31,14 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
-        android:layout_height="104dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/white"
-        app:elevation="8dp"
+        android:background="@drawable/bg_bottom_navigation"
+        app:elevation="16dp"
+        app:itemIconSize="24dp"
         app:itemIconTint="@color/bottom_nav_colors"
         app:itemTextColor="@color/bottom_nav_colors"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

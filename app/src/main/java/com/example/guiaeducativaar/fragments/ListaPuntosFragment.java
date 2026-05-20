@@ -21,6 +21,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import android.widget.Button;
+import com.example.guiaeducativaar.activities.FormularioPuntoActivity;
+
 import java.util.ArrayList;
 
 public class ListaPuntosFragment extends Fragment {
@@ -30,6 +33,8 @@ public class ListaPuntosFragment extends Fragment {
 
     private ArrayList<PuntoEducativo> listaPuntos;
     private PuntoEducativoAdapter adapter;
+
+    private Button btnAgregarPunto;
 
     public ListaPuntosFragment() {
     }
@@ -42,18 +47,41 @@ public class ListaPuntosFragment extends Fragment {
 
         recyclerPuntos = view.findViewById(R.id.recyclerPuntos);
         txtEstadoLista = view.findViewById(R.id.txtEstadoLista);
+        btnAgregarPunto = view.findViewById(R.id.btnAgregarPunto);
+
+        btnAgregarPunto.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), FormularioPuntoActivity.class);
+            startActivity(intent);
+        });
 
         listaPuntos = new ArrayList<>();
 
-        adapter = new PuntoEducativoAdapter(listaPuntos, punto -> {
-            Intent intent = new Intent(getActivity(), DetallePuntoActivity.class);
-            intent.putExtra("nombre", punto.getNombre());
-            intent.putExtra("descripcion", punto.getDescripcion());
-            intent.putExtra("latitud", String.valueOf(punto.getLatitud()));
-            intent.putExtra("longitud", String.valueOf(punto.getLongitud()));
-            intent.putExtra("imagenReferencia", punto.getImagenReferencia());
-            intent.putExtra("modelo3D", punto.getModelo3D());
-            startActivity(intent);
+        adapter = new PuntoEducativoAdapter(listaPuntos, new PuntoEducativoAdapter.OnPuntoClickListener() {
+            @Override
+            public void onPuntoClick(PuntoEducativo punto) {
+                Intent intent = new Intent(getActivity(), DetallePuntoActivity.class);
+                intent.putExtra("id", punto.getId());
+                intent.putExtra("nombre", punto.getNombre());
+                intent.putExtra("descripcion", punto.getDescripcion());
+                intent.putExtra("latitud", String.valueOf(punto.getLatitud()));
+                intent.putExtra("longitud", String.valueOf(punto.getLongitud()));
+                intent.putExtra("imagenReferencia", punto.getImagenReferencia());
+                intent.putExtra("modelo3D", punto.getModelo3D());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onPuntoLongClick(PuntoEducativo punto) {
+                Intent intent = new Intent(getActivity(), FormularioPuntoActivity.class);
+                intent.putExtra("id", punto.getId());
+                intent.putExtra("nombre", punto.getNombre());
+                intent.putExtra("descripcion", punto.getDescripcion());
+                intent.putExtra("latitud", String.valueOf(punto.getLatitud()));
+                intent.putExtra("longitud", String.valueOf(punto.getLongitud()));
+                intent.putExtra("imagenReferencia", punto.getImagenReferencia());
+                intent.putExtra("modelo3D", punto.getModelo3D());
+                startActivity(intent);
+            }
         });
 
         recyclerPuntos.setLayoutManager(new LinearLayoutManager(getContext()));

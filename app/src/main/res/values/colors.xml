@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- Paleta principal -->
-    <color name="primary_teal">#6FB3B4</color>
-    <color name="secondary_gray">#95A5A6</color>
-    <color name="accent_gold">#E6CE7E</color>
-    <color name="background_beige">#E3D5C5</color>
-    <color name="accent_brown">#D18E53</color>
-
-    <!-- Extras -->
+    <color name="purple_primary">#8E70C1</color>
+    <color name="purple_dark">#6E51A3</color>
+    <color name="purple_light">#D4C7EC</color>
+    <color name="gradient_start">#FF6584</color>
+    <color name="gradient_end">#A176C9</color>
+    <color name="background_light">#F5F3FA</color>
+    <color name="background_canvas">#DCDAF1</color>
     <color name="white">#FFFFFF</color>
-    <color name="text_primary">#2D3436</color>
-    <color name="text_secondary">#5F6B6D</color>
-
+    <color name="black">#000000</color>
+    <color name="text_dark">#2B2B2B</color>
+    <color name="text_muted">#7E7E7E</color>
+    <color name="divider_line">#E2DFEE</color>
 </resources>

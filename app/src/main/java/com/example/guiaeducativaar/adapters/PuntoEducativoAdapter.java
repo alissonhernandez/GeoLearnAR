@@ -20,6 +20,7 @@ public class PuntoEducativoAdapter extends RecyclerView.Adapter<PuntoEducativoAd
 
     public interface OnPuntoClickListener {
         void onPuntoClick(PuntoEducativo punto);
+        void onPuntoLongClick(PuntoEducativo punto);
     }
 
     public PuntoEducativoAdapter(List<PuntoEducativo> listaPuntos, OnPuntoClickListener listener) {
@@ -47,6 +48,10 @@ public class PuntoEducativoAdapter extends RecyclerView.Adapter<PuntoEducativoAd
         );
 
         holder.itemView.setOnClickListener(v -> listener.onPuntoClick(punto));
+        holder.itemView.setOnLongClickListener(v -> {
+            listener.onPuntoLongClick(punto);
+            return true;
+        });
     }
 
     @Override

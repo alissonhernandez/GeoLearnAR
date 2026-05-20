@@ -2,48 +2,44 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_beige">
+    android:background="@color/background_light"> <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@drawable/bg_header"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ayuda"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:gravity="center" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="22dp"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="@drawable/bg_header"
-            android:padding="20dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Ayuda"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:gravity="center" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="22dp"
-            android:orientation="vertical">
+            android:background="@drawable/bg_card"
+            android:elevation="4dp"
+            android:text="1. Activa el GPS.\n\n2. Selecciona un punto educativo.\n\n3. Acércate al lugar indicado.\n\n4. Abre la cámara de realidad aumentada.\n\n5. Toca un plano para colocar el contenido 3D."
+            android:textSize="16sp"
+            android:textColor="@color/text_dark" /> </LinearLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_card"
-                android:elevation="4dp"
-                android:text="1. Activa el GPS.\n\n2. Selecciona un punto educativo.\n\n3. Acércate al lugar indicado.\n\n4. Abre la cámara de realidad aumentada.\n\n5. Toca un plano para colocar el contenido 3D."
-                android:textSize="16sp"
-                android:textColor="@color/text_primary" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+</LinearLayout>
 
 </ScrollView>

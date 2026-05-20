@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light"> <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="24dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/txtTituloFormulario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Agregar estación"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/purple_dark" />
+
+    <EditText
+        android:id="@+id/edtNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:id="@+id/edtDescripcion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Descripción"
+        android:minLines="3"
+        android:layout_marginTop="12dp" />
+
+    <EditText
+        android:id="@+id/edtLatitud"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Latitud"
+        android:inputType="numberDecimal|numberSigned"
+        android:layout_marginTop="12dp" />
+
+    <EditText
+        android:id="@+id/edtLongitud"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Longitud"
+        android:inputType="numberDecimal|numberSigned"
+        android:layout_marginTop="12dp" />
+
+    <EditText
+        android:id="@+id/edtImagen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Imagen de referencia, ejemplo: android"
+        android:layout_marginTop="12dp" />
+
+    <EditText
+        android:id="@+id/edtModelo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Modelo 3D, ejemplo: smartphone.glb"
+        android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/btnGuardar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Guardar"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:backgroundTint="@color/purple_primary"
+        android:layout_marginTop="24dp" />
+
+    <Button
+        android:id="@+id/btnEliminar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Eliminar estación"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:backgroundTint="@color/gradient_start"
+        android:layout_marginTop="12dp"
+        android:visibility="gone" />
+
+</LinearLayout>
+
+</ScrollView>

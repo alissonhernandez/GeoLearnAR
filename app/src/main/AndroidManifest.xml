@@ -28,6 +28,11 @@
         <activity
             android:name=".activities.DetallePuntoActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activities.FormularioPuntoActivity"
+            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
