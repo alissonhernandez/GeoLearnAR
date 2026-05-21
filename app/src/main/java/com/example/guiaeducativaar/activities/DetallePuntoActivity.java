@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.bumptech.glide.Glide;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -87,9 +88,18 @@ public class DetallePuntoActivity extends AppCompatActivity {
                         "\nLongitud: " + longitudPunto
         );
 
-        if (imagen != null) {
-            if (imagen.contains("microprogramacion")) {
+        if (imagen != null && !imagen.isEmpty()) {
+
+            if (imagen.startsWith("http")) {
+                Glide.with(this)
+                        .load(imagen)
+                        .placeholder(R.drawable.ic_launcher_background)
+                        .error(R.drawable.ic_launcher_background)
+                        .into(imgReferencia);
+
+            } else if (imagen.contains("microprogramacion")) {
                 imgReferencia.setImageResource(R.drawable.microprogramacion);
+
             } else if (imagen.contains("android")) {
                 imgReferencia.setImageResource(R.drawable.android);
             }

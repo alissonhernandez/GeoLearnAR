@@ -4,12 +4,14 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
@@ -29,13 +31,28 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class FormularioPuntoActivity extends AppCompatActivity {
+
+    private static final String CLOUD_NAME = "dhvx694fe";
+    private static final String UPLOAD_PRESET = "geolearnar_upload";
 
     private TextView txtTituloFormulario;
     private TextInputEditText edtNombre, edtDescripcion, edtLatitud, edtLongitud;
@@ -56,6 +73,7 @@ public class FormularioPuntoActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> permisoUbicacionLauncher;
 
     private FusedLocationProviderClient fusedLocationClient;
+    private final OkHttpClient httpClient = new OkHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,6 +221,7 @@ public class FormularioPuntoActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Ubicación actual tomada correctamente", Toast.LENGTH_SHORT).show();
     }
+
     private void obtenerDireccionDesdeCoordenadas(double latitud, double longitud) {
         try {
             Geocoder geocoder = new Geocoder(this, new Locale("es", "SV"));
@@ -409,29 +428,133 @@ public class FormularioPuntoActivity extends AppCompatActivity {
     }
 
     private void subirArchivo(Uri uri, String carpeta, OnArchivoSubido listener) {
-        String extension = carpeta.equals("modelos3d") ? ".glb" : ".jpg";
-        String nombreArchivo = carpeta + "_" + System.currentTimeMillis() + extension;
+        try {
+            String nombreArchivo = obtenerNombreArchivo(uri);
 
-        StorageReference referencia = FirebaseStorage.getInstance()
-                .getReference()
-                .child(carpeta)
-                .child(nombreArchivo);
+            if (nombreArchivo == null || nombreArchivo.trim().isEmpty()) {
+                nombreArchivo = carpeta + "_" + System.currentTimeMillis();
+            }
 
-        referencia.putFile(uri)
-                .addOnSuccessListener(taskSnapshot ->
-                        taskSnapshot.getStorage().getDownloadUrl()
-                                .addOnSuccessListener(downloadUri ->
-                                        listener.onSubido(downloadUri.toString())
-                                )
-                                .addOnFailureListener(e -> {
-                                    restaurarBotonGuardar();
-                                    Toast.makeText(this, "Error obteniendo URL: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                })
-                )
-                .addOnFailureListener(e -> {
-                    restaurarBotonGuardar();
-                    Toast.makeText(this, "Error subiendo archivo: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
+            File archivoTemporal = copiarUriAArchivoTemporal(uri, nombreArchivo);
+
+            String resourceType = carpeta.equals("modelos3d") ? "raw" : "image";
+
+            String url = "https://api.cloudinary.com/v1_1/"
+                    + CLOUD_NAME
+                    + "/"
+                    + resourceType
+                    + "/upload";
+
+            RequestBody archivoBody = RequestBody.create(
+                    archivoTemporal,
+                    MediaType.parse("application/octet-stream")
+            );
+
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file", nombreArchivo, archivoBody)
+                    .addFormDataPart("upload_preset", UPLOAD_PRESET)
+                    .addFormDataPart("folder", carpeta)
+                    .build();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+
+            httpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, java.io.IOException e) {
+                    runOnUiThread(() -> {
+                        restaurarBotonGuardar();
+                        Toast.makeText(FormularioPuntoActivity.this,
+                                "Error subiendo archivo: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    });
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws java.io.IOException {
+                    String respuesta = response.body() != null ? response.body().string() : "";
+
+                    if (!response.isSuccessful()) {
+                        runOnUiThread(() -> {
+                            restaurarBotonGuardar();
+                            Toast.makeText(FormularioPuntoActivity.this,
+                                    "Cloudinary rechazó el archivo: " + respuesta,
+                                    Toast.LENGTH_LONG).show();
+                        });
+                        return;
+                    }
+
+                    try {
+                        JSONObject json = new JSONObject(respuesta);
+                        String urlArchivo = json.getString("secure_url");
+
+                        runOnUiThread(() -> listener.onSubido(urlArchivo));
+
+                    } catch (Exception e) {
+                        runOnUiThread(() -> {
+                            restaurarBotonGuardar();
+                            Toast.makeText(FormularioPuntoActivity.this,
+                                    "Error leyendo respuesta de Cloudinary",
+                                    Toast.LENGTH_LONG).show();
+                        });
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            restaurarBotonGuardar();
+            Toast.makeText(this,
+                    "Error preparando archivo: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private String obtenerNombreArchivo(Uri uri) {
+        String nombre = null;
+
+        if ("content".equals(uri.getScheme())) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int indiceNombre = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (indiceNombre >= 0) {
+                        nombre = cursor.getString(indiceNombre);
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        if (nombre == null) {
+            nombre = uri.getLastPathSegment();
+        }
+
+        return nombre;
+    }
+
+    private File copiarUriAArchivoTemporal(Uri uri, String nombreArchivo) throws Exception {
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+
+        if (inputStream == null) {
+            throw new Exception("No se pudo leer el archivo seleccionado");
+        }
+
+        File archivoTemporal = new File(getCacheDir(), nombreArchivo);
+        FileOutputStream outputStream = new FileOutputStream(archivoTemporal);
+
+        byte[] buffer = new byte[4096];
+        int bytesLeidos;
+
+        while ((bytesLeidos = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesLeidos);
+        }
+
+        outputStream.close();
+        inputStream.close();
+
+        return archivoTemporal;
     }
 
     private void guardarEnFirebase(String nombre, String descripcion, double latitud, double longitud,
