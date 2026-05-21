@@ -4,16 +4,24 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.guiaeducativaar.ARActivity;
@@ -22,10 +30,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
+import java.io.InputStream;
 
 public class DetallePuntoActivity extends AppCompatActivity {
 
@@ -42,10 +47,10 @@ public class DetallePuntoActivity extends AppCompatActivity {
 
     private final float RADIO_PERMITIDO_METROS = 50f;
 
-    private String nombre;
-    private String descripcion;
-    private String imagenReferencia;
-    private String modelo3D;
+    private String nombre = "";
+    private String descripcion = "";
+    private String imagenReferencia = "";
+    private String modelo3D = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,17 +77,7 @@ public class DetallePuntoActivity extends AppCompatActivity {
         mostrarEstado("info", "Primero verifica tu ubicación. Si estás cerca, se desbloqueará la realidad aumentada.");
 
         btnVerificarUbicacion.setOnClickListener(v -> verificarPermisoYUbicacion());
-
-        btnAbrirAR.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ARActivity.class);
-            intent.putExtra("nombre", nombre);
-            intent.putExtra("descripcion", descripcion);
-            intent.putExtra("latitud", String.valueOf(latitudPunto));
-            intent.putExtra("longitud", String.valueOf(longitudPunto));
-            intent.putExtra("imagenReferencia", imagenReferencia);
-            intent.putExtra("modelo3D", modelo3D);
-            startActivity(intent);
-        });
+        btnAbrirAR.setOnClickListener(v -> abrirRealidadAumentada());
     }
 
     private void recibirDatos() {
@@ -95,19 +90,23 @@ public class DetallePuntoActivity extends AppCompatActivity {
         String longitud = getIntent().getStringExtra("longitud");
 
         if (nombre == null || nombre.trim().isEmpty()) {
-            nombre = "Estación educativa";
+            nombre = "Estación educativa sin nombre";
         }
 
         if (descripcion == null || descripcion.trim().isEmpty()) {
             descripcion = "Sin descripción disponible.";
         }
 
-        if (imagenReferencia == null || imagenReferencia.trim().isEmpty()) {
-            imagenReferencia = "arduino";
-        }
+        imagenReferencia = limpiarNombreArchivo(imagenReferencia);
 
         if (modelo3D == null || modelo3D.trim().isEmpty()) {
-            modelo3D = limpiarClaveImagen(imagenReferencia) + ".glb";
+            if (!imagenReferencia.isEmpty()) {
+                modelo3D = imagenReferencia + ".glb";
+            } else {
+                modelo3D = "";
+            }
+        } else {
+            modelo3D = limpiarModelo(modelo3D);
         }
 
         try {
@@ -135,13 +134,31 @@ public class DetallePuntoActivity extends AppCompatActivity {
                     .placeholder(R.drawable.ic_launcher_background)
                     .error(R.drawable.ic_launcher_background)
                     .into(imgReferencia);
-        } else if (imagenReferencia.toLowerCase().contains("android")) {
-            imgReferencia.setImageResource(R.drawable.android);
-        } else if (imagenReferencia.toLowerCase().contains("microprogramacion")) {
-            imgReferencia.setImageResource(R.drawable.microprogramacion);
-        } else {
-            imgReferencia.setImageResource(R.drawable.ic_launcher_background);
+            return;
         }
+
+        if (cargarImagenDesdeAssets(imagenReferencia + ".png")) return;
+        if (cargarImagenDesdeAssets(imagenReferencia + ".jpg")) return;
+        if (cargarImagenDesdeAssets(imagenReferencia + ".jpeg")) return;
+        if (cargarImagenDesdeAssets(imagenReferencia + ".webp")) return;
+
+        imgReferencia.setImageResource(R.drawable.ic_launcher_background);
+    }
+
+    private boolean cargarImagenDesdeAssets(String nombreArchivo) {
+        try {
+            InputStream inputStream = getAssets().open(nombreArchivo);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            inputStream.close();
+
+            if (bitmap != null) {
+                imgReferencia.setImageBitmap(bitmap);
+                return true;
+            }
+        } catch (Exception ignored) {
+        }
+
+        return false;
     }
 
     private void configurarPermisoUbicacion() {
@@ -152,6 +169,7 @@ public class DetallePuntoActivity extends AppCompatActivity {
                         obtenerUbicacionActual();
                     } else {
                         mostrarEstado("error", "Permiso de ubicación denegado. No se puede desbloquear esta estación.");
+                        btnAbrirAR.setEnabled(false);
                     }
                 }
         );
@@ -185,6 +203,7 @@ public class DetallePuntoActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             mostrarEstado("error", "No hay permiso de ubicación.");
+            btnAbrirAR.setEnabled(false);
             return;
         }
 
@@ -201,18 +220,32 @@ public class DetallePuntoActivity extends AppCompatActivity {
                         calcularDistancia(location);
                     } else {
                         mostrarEstado("advertencia", "No se pudo obtener ubicación. Muévete a un lugar abierto e intenta otra vez.");
+                        btnAbrirAR.setEnabled(false);
                     }
                 })
                 .addOnFailureListener(e -> {
                     btnVerificarUbicacion.setEnabled(true);
                     btnVerificarUbicacion.setText("Verificar ubicación");
                     mostrarEstado("error", "Error obteniendo ubicación: " + e.getMessage());
+                    btnAbrirAR.setEnabled(false);
                 });
     }
 
     private void calcularDistancia(Location ubicacionUsuario) {
         if (latitudPunto == 0 && longitudPunto == 0) {
             mostrarEstado("error", "Esta estación no tiene coordenadas válidas.");
+            btnAbrirAR.setEnabled(false);
+            return;
+        }
+
+        if (imagenReferencia == null || imagenReferencia.trim().isEmpty()) {
+            mostrarEstado("error", "Esta estación no tiene imagen de referencia configurada.");
+            btnAbrirAR.setEnabled(false);
+            return;
+        }
+
+        if (modelo3D == null || modelo3D.trim().isEmpty()) {
+            mostrarEstado("error", "Esta estación no tiene modelo 3D configurado.");
             btnAbrirAR.setEnabled(false);
             return;
         }
@@ -233,20 +266,69 @@ public class DetallePuntoActivity extends AppCompatActivity {
         }
     }
 
-    private String limpiarClaveImagen(String valor) {
-        if (valor == null) return "arduino";
+    private void abrirRealidadAumentada() {
+        if (imagenReferencia == null || imagenReferencia.trim().isEmpty()) {
+            mostrarEstado("error", "No se puede abrir AR porque falta la imagen de referencia.");
+            return;
+        }
 
-        valor = valor.toLowerCase();
+        if (modelo3D == null || modelo3D.trim().isEmpty()) {
+            mostrarEstado("error", "No se puede abrir AR porque falta el modelo 3D.");
+            return;
+        }
 
-        if (valor.contains("arduino")) return "arduino";
-        if (valor.contains("android")) return "android";
-        if (valor.contains("protoboard")) return "protoboard";
+        Intent intent = new Intent(this, ARActivity.class);
+        intent.putExtra("nombre", nombre);
+        intent.putExtra("descripcion", descripcion);
+        intent.putExtra("latitud", String.valueOf(latitudPunto));
+        intent.putExtra("longitud", String.valueOf(longitudPunto));
+        intent.putExtra("imagenReferencia", imagenReferencia);
+        intent.putExtra("modelo3D", modelo3D);
+        startActivity(intent);
+    }
 
-        return "arduino";
+    private String limpiarNombreArchivo(String valor) {
+        if (valor == null) return "";
+
+        valor = valor.trim();
+
+        if (valor.startsWith("http")) {
+            return valor;
+        }
+
+        if (valor.contains("/")) {
+            valor = valor.substring(valor.lastIndexOf("/") + 1);
+        }
+
+        valor = valor.replace(".png", "")
+                .replace(".jpg", "")
+                .replace(".jpeg", "")
+                .replace(".webp", "");
+
+        return valor.toLowerCase();
+    }
+
+    private String limpiarModelo(String valor) {
+        if (valor == null) return "";
+
+        valor = valor.trim();
+
+        if (valor.contains("/")) {
+            valor = valor.substring(valor.lastIndexOf("/") + 1);
+        }
+
+        if (!valor.toLowerCase().endsWith(".glb")
+                && !valor.toLowerCase().endsWith(".gltf")) {
+            if (!imagenReferencia.isEmpty() && !imagenReferencia.startsWith("http")) {
+                return imagenReferencia + ".glb";
+            }
+        }
+
+        return valor.toLowerCase();
     }
 
     private void mostrarEstado(String tipo, String mensaje) {
-        contenedorEstado.setVisibility(android.view.View.VISIBLE);
+        contenedorEstado.setVisibility(View.VISIBLE);
         txtMensajeEstado.setText(mensaje);
 
         switch (tipo) {

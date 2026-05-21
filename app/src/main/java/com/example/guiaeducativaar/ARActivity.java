@@ -98,23 +98,17 @@ public class ARActivity extends AppCompatActivity {
         String imagen = getIntent().getStringExtra("imagenReferencia");
         String modelo = getIntent().getStringExtra("modelo3D");
 
-        if (nombre != null && !nombre.trim().isEmpty()) {
-            nombrePunto = nombre.trim();
-        } else {
-            nombrePunto = "Punto educativo sin nombre";
-        }
+        nombrePunto = (nombre != null && !nombre.trim().isEmpty())
+                ? nombre.trim()
+                : "Punto educativo sin nombre";
 
-        if (descripcion != null && !descripcion.trim().isEmpty()) {
-            descripcionPunto = descripcion.trim();
-        } else {
-            descripcionPunto = "Descripción no disponible en Firebase.";
-        }
+        descripcionPunto = (descripcion != null && !descripcion.trim().isEmpty())
+                ? descripcion.trim()
+                : "Descripción no disponible en Firebase.";
 
-        if (imagen != null && !imagen.trim().isEmpty()) {
-            imagenReferencia = limpiarNombreImagen(imagen);
-        } else {
-            imagenReferencia = "";
-        }
+        imagenReferencia = (imagen != null && !imagen.trim().isEmpty())
+                ? limpiarNombreImagen(imagen)
+                : "";
 
         if (modelo != null && !modelo.trim().isEmpty()) {
             modelo3D = limpiarNombreModelo(modelo);
@@ -188,14 +182,12 @@ public class ARActivity extends AppCompatActivity {
             }
         }
 
-        return valor;
+        return valor.toLowerCase();
     }
 
     private void cargarModeloGLB(Runnable alCargar) {
         if (modelo3D == null || modelo3D.trim().isEmpty()) {
-            txtInstruccionAR.setText(
-                    "No hay modelo 3D configurado para este punto educativo."
-            );
+            txtInstruccionAR.setText("No hay modelo 3D configurado para este punto educativo.");
             return;
         }
 
@@ -291,6 +283,9 @@ public class ARActivity extends AppCompatActivity {
         } else if (imagenDetectada.equalsIgnoreCase("protoboard")) {
             nombrePunto = "Estación Protoboard";
             descripcionPunto = "Placa de pruebas usada para armar circuitos electrónicos sin soldar.";
+        } else if (imagenDetectada.equalsIgnoreCase("diseño")) {
+            nombrePunto = "Estación Diseño";
+            descripcionPunto = "Área relacionada con la planificación visual, estructura y presentación de interfaces educativas.";
         } else {
             nombrePunto = "Estación " + imagenDetectada;
             descripcionPunto = "Contenido educativo en realidad aumentada.";
@@ -376,6 +371,11 @@ public class ARActivity extends AppCompatActivity {
             nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
 
         } else if (clave.contains("protoboard")) {
+            nodo3D.setLocalScale(new Vector3(0.24f, 0.24f, 0.24f));
+            nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
+            nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
+
+        } else if (clave.contains("diseño")) {
             nodo3D.setLocalScale(new Vector3(0.24f, 0.24f, 0.24f));
             nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
             nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));

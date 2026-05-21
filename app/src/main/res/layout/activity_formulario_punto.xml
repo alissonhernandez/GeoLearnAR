@@ -172,44 +172,56 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/txtImagenSeleccionada"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
-                android:text="No has seleccionado imagen"
+                android:text="Imagen de referencia"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinnerImagen"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@color/white"
+                android:padding="12dp" />
+
+            <TextView
+                android:id="@+id/txtImagenSeleccionada"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Imagen seleccionada: android.png"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSeleccionarImagen"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Seleccionar imagen desde galería"
-                android:textAllCaps="false"
-                android:textColor="@color/purple_primary"
-                app:backgroundTint="@color/white"
-                app:cornerRadius="25dp" />
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="Modelo 3D"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinnerModelo"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@color/white"
+                android:padding="12dp" />
 
             <TextView
                 android:id="@+id/txtModeloSeleccionado"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="8dp"
-                android:text="No has seleccionado modelo .glb"
+                android:layout_marginTop="8dp"
+                android:text="Modelo seleccionado: android.glb"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSeleccionarModelo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Seleccionar modelo .glb"
-                android:textAllCaps="false"
-                android:textColor="@color/purple_primary"
-                app:backgroundTint="@color/white"
-                app:cornerRadius="25dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGuardar"

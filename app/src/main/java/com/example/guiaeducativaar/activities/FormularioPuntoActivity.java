@@ -4,18 +4,19 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,48 +33,40 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.material.textfield.TextInputEditText;
 
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
 public class FormularioPuntoActivity extends AppCompatActivity {
-
-    private static final String CLOUD_NAME = "dhvx694fe";
-    private static final String UPLOAD_PRESET = "geolearnar_upload";
 
     private TextView txtTituloFormulario;
     private TextInputEditText edtNombre, edtDescripcion, edtLatitud, edtLongitud;
     private TextView txtImagenSeleccionada, txtModeloSeleccionado, txtDireccionActual;
     private Button btnGuardar, btnEliminar, btnUsarUbicacionActual, btnVerUbicacionMapa;
 
+    private Spinner spinnerImagen, spinnerModelo;
+
     private String idPunto;
     private boolean modoEditar = false;
 
-    private Uri imagenUri;
-    private Uri modeloUri;
+    private String imagenSeleccionada = "android.png";
+    private String modeloSeleccionado = "android.glb";
 
-    private String imagenUrlActual = "";
-    private String modeloUrlActual = "";
-
-    private ActivityResultLauncher<String> seleccionarImagenLauncher;
-    private ActivityResultLauncher<String> seleccionarModeloLauncher;
     private ActivityResultLauncher<String> permisoUbicacionLauncher;
-
     private FusedLocationProviderClient fusedLocationClient;
-    private final OkHttpClient httpClient = new OkHttpClient();
+
+    private final String[] imagenesAssets = {
+            "android.png",
+            "diseño.png",
+            "arduino.png",
+            "protoboard.png"
+    };
+
+    private final String[] modelosAssets = {
+            "android.glb",
+            "diseño.glb",
+            "arduino.glb",
+            "protoboard.glb"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +84,8 @@ public class FormularioPuntoActivity extends AppCompatActivity {
         txtModeloSeleccionado = findViewById(R.id.txtModeloSeleccionado);
         txtDireccionActual = findViewById(R.id.txtDireccionActual);
 
-        Button btnSeleccionarImagen = findViewById(R.id.btnSeleccionarImagen);
-        Button btnSeleccionarModelo = findViewById(R.id.btnSeleccionarModelo);
+        spinnerImagen = findViewById(R.id.spinnerImagen);
+        spinnerModelo = findViewById(R.id.spinnerModelo);
 
         btnUsarUbicacionActual = findViewById(R.id.btnUsarUbicacionActual);
         btnVerUbicacionMapa = findViewById(R.id.btnVerUbicacionMapa);
@@ -102,15 +95,12 @@ public class FormularioPuntoActivity extends AppCompatActivity {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        configurarSelectoresArchivos();
+        configurarSpinners();
         configurarPermisoUbicacion();
         recibirDatos();
 
         ImageButton btnRegresar = findViewById(R.id.btnRegresar);
         btnRegresar.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-
-        btnSeleccionarImagen.setOnClickListener(v -> seleccionarImagenLauncher.launch("image/*"));
-        btnSeleccionarModelo.setOnClickListener(v -> seleccionarModeloLauncher.launch("*/*"));
 
         btnUsarUbicacionActual.setOnClickListener(v -> verificarPermisoYObtenerUbicacion());
         btnVerUbicacionMapa.setOnClickListener(v -> abrirMapa());
@@ -119,28 +109,46 @@ public class FormularioPuntoActivity extends AppCompatActivity {
         btnEliminar.setOnClickListener(v -> eliminarPunto());
     }
 
-    private void configurarSelectoresArchivos() {
-        seleccionarImagenLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        imagenUri = uri;
-                        txtImagenSeleccionada.setText("Imagen seleccionada correctamente");
-                        Toast.makeText(this, "Imagen seleccionada", Toast.LENGTH_SHORT).show();
-                    }
-                }
+    private void configurarSpinners() {
+        ArrayAdapter<String> adapterImagenes = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                imagenesAssets
         );
+        adapterImagenes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerImagen.setAdapter(adapterImagenes);
 
-        seleccionarModeloLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        modeloUri = uri;
-                        txtModeloSeleccionado.setText("Modelo .glb seleccionado correctamente");
-                        Toast.makeText(this, "Modelo seleccionado", Toast.LENGTH_SHORT).show();
-                    }
-                }
+        ArrayAdapter<String> adapterModelos = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                modelosAssets
         );
+        adapterModelos.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerModelo.setAdapter(adapterModelos);
+
+        spinnerImagen.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                imagenSeleccionada = imagenesAssets[position];
+                txtImagenSeleccionada.setText("Imagen seleccionada: " + imagenSeleccionada);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        spinnerModelo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                modeloSeleccionado = modelosAssets[position];
+                txtModeloSeleccionado.setText("Modelo seleccionado: " + modeloSeleccionado);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
     }
 
     private void configurarPermisoUbicacion() {
@@ -312,15 +320,19 @@ public class FormularioPuntoActivity extends AppCompatActivity {
             edtLatitud.setText(getIntent().getStringExtra("latitud"));
             edtLongitud.setText(getIntent().getStringExtra("longitud"));
 
-            imagenUrlActual = getIntent().getStringExtra("imagenReferencia");
-            modeloUrlActual = getIntent().getStringExtra("modelo3D");
+            String imagenGuardada = getIntent().getStringExtra("imagenReferencia");
+            String modeloGuardado = getIntent().getStringExtra("modelo3D");
 
-            if (imagenUrlActual != null && !imagenUrlActual.isEmpty()) {
-                txtImagenSeleccionada.setText("Imagen actual cargada");
+            if (imagenGuardada != null && !imagenGuardada.isEmpty()) {
+                imagenSeleccionada = imagenGuardada;
+                seleccionarEnSpinner(spinnerImagen, imagenesAssets, imagenGuardada);
+                txtImagenSeleccionada.setText("Imagen seleccionada: " + imagenGuardada);
             }
 
-            if (modeloUrlActual != null && !modeloUrlActual.isEmpty()) {
-                txtModeloSeleccionado.setText("Modelo actual cargado");
+            if (modeloGuardado != null && !modeloGuardado.isEmpty()) {
+                modeloSeleccionado = modeloGuardado;
+                seleccionarEnSpinner(spinnerModelo, modelosAssets, modeloGuardado);
+                txtModeloSeleccionado.setText("Modelo seleccionado: " + modeloGuardado);
             }
 
             if (edtLatitud.getText() != null && edtLongitud.getText() != null &&
@@ -335,6 +347,15 @@ public class FormularioPuntoActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     txtDireccionActual.setText("Ubicación guardada, sin dirección disponible");
                 }
+            }
+        }
+    }
+
+    private void seleccionarEnSpinner(Spinner spinner, String[] datos, String valor) {
+        for (int i = 0; i < datos.length; i++) {
+            if (datos[i].equals(valor)) {
+                spinner.setSelection(i);
+                break;
             }
         }
     }
@@ -367,13 +388,13 @@ public class FormularioPuntoActivity extends AppCompatActivity {
             hayError = true;
         }
 
-        if (!modoEditar && imagenUri == null) {
+        if (imagenSeleccionada == null || imagenSeleccionada.isEmpty()) {
             Toast.makeText(this, "Debes seleccionar una imagen", Toast.LENGTH_LONG).show();
             hayError = true;
         }
 
-        if (!modoEditar && modeloUri == null) {
-            Toast.makeText(this, "Debes seleccionar un modelo .glb", Toast.LENGTH_LONG).show();
+        if (modeloSeleccionado == null || modeloSeleccionado.isEmpty()) {
+            Toast.makeText(this, "Debes seleccionar un modelo 3D", Toast.LENGTH_LONG).show();
             hayError = true;
         }
 
@@ -402,163 +423,13 @@ public class FormularioPuntoActivity extends AppCompatActivity {
         }
 
         btnGuardar.setEnabled(false);
-        btnGuardar.setText("Subiendo archivos...");
+        btnGuardar.setText("Guardando...");
 
-        subirArchivosYGuardar(nombre, descripcion, latitud, longitud);
-    }
-
-    private void subirArchivosYGuardar(String nombre, String descripcion, double latitud, double longitud) {
-        if (imagenUri != null) {
-            subirArchivo(imagenUri, "imagenes", urlImagen -> {
-                if (modeloUri != null) {
-                    subirArchivo(modeloUri, "modelos3d", urlModelo ->
-                            guardarEnFirebase(nombre, descripcion, latitud, longitud, urlImagen, urlModelo)
-                    );
-                } else {
-                    guardarEnFirebase(nombre, descripcion, latitud, longitud, urlImagen, modeloUrlActual);
-                }
-            });
-        } else if (modeloUri != null) {
-            subirArchivo(modeloUri, "modelos3d", urlModelo ->
-                    guardarEnFirebase(nombre, descripcion, latitud, longitud, imagenUrlActual, urlModelo)
-            );
-        } else {
-            guardarEnFirebase(nombre, descripcion, latitud, longitud, imagenUrlActual, modeloUrlActual);
-        }
-    }
-
-    private void subirArchivo(Uri uri, String carpeta, OnArchivoSubido listener) {
-        try {
-            String nombreArchivo = obtenerNombreArchivo(uri);
-
-            if (nombreArchivo == null || nombreArchivo.trim().isEmpty()) {
-                nombreArchivo = carpeta + "_" + System.currentTimeMillis();
-            }
-
-            File archivoTemporal = copiarUriAArchivoTemporal(uri, nombreArchivo);
-
-            String resourceType = carpeta.equals("modelos3d") ? "raw" : "image";
-
-            String url = "https://api.cloudinary.com/v1_1/"
-                    + CLOUD_NAME
-                    + "/"
-                    + resourceType
-                    + "/upload";
-
-            RequestBody archivoBody = RequestBody.create(
-                    archivoTemporal,
-                    MediaType.parse("application/octet-stream")
-            );
-
-            RequestBody requestBody = new MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart("file", nombreArchivo, archivoBody)
-                    .addFormDataPart("upload_preset", UPLOAD_PRESET)
-                    .addFormDataPart("folder", carpeta)
-                    .build();
-
-            Request request = new Request.Builder()
-                    .url(url)
-                    .post(requestBody)
-                    .build();
-
-            httpClient.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, java.io.IOException e) {
-                    runOnUiThread(() -> {
-                        restaurarBotonGuardar();
-                        Toast.makeText(FormularioPuntoActivity.this,
-                                "Error subiendo archivo: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                    });
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws java.io.IOException {
-                    String respuesta = response.body() != null ? response.body().string() : "";
-
-                    if (!response.isSuccessful()) {
-                        runOnUiThread(() -> {
-                            restaurarBotonGuardar();
-                            Toast.makeText(FormularioPuntoActivity.this,
-                                    "Cloudinary rechazó el archivo: " + respuesta,
-                                    Toast.LENGTH_LONG).show();
-                        });
-                        return;
-                    }
-
-                    try {
-                        JSONObject json = new JSONObject(respuesta);
-                        String urlArchivo = json.getString("secure_url");
-
-                        runOnUiThread(() -> listener.onSubido(urlArchivo));
-
-                    } catch (Exception e) {
-                        runOnUiThread(() -> {
-                            restaurarBotonGuardar();
-                            Toast.makeText(FormularioPuntoActivity.this,
-                                    "Error leyendo respuesta de Cloudinary",
-                                    Toast.LENGTH_LONG).show();
-                        });
-                    }
-                }
-            });
-
-        } catch (Exception e) {
-            restaurarBotonGuardar();
-            Toast.makeText(this,
-                    "Error preparando archivo: " + e.getMessage(),
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private String obtenerNombreArchivo(Uri uri) {
-        String nombre = null;
-
-        if ("content".equals(uri.getScheme())) {
-            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int indiceNombre = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    if (indiceNombre >= 0) {
-                        nombre = cursor.getString(indiceNombre);
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
-        if (nombre == null) {
-            nombre = uri.getLastPathSegment();
-        }
-
-        return nombre;
-    }
-
-    private File copiarUriAArchivoTemporal(Uri uri, String nombreArchivo) throws Exception {
-        InputStream inputStream = getContentResolver().openInputStream(uri);
-
-        if (inputStream == null) {
-            throw new Exception("No se pudo leer el archivo seleccionado");
-        }
-
-        File archivoTemporal = new File(getCacheDir(), nombreArchivo);
-        FileOutputStream outputStream = new FileOutputStream(archivoTemporal);
-
-        byte[] buffer = new byte[4096];
-        int bytesLeidos;
-
-        while ((bytesLeidos = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, bytesLeidos);
-        }
-
-        outputStream.close();
-        inputStream.close();
-
-        return archivoTemporal;
+        guardarEnFirebase(nombre, descripcion, latitud, longitud, imagenSeleccionada, modeloSeleccionado);
     }
 
     private void guardarEnFirebase(String nombre, String descripcion, double latitud, double longitud,
-                                   String imagenUrl, String modeloUrl) {
+                                   String imagenReferencia, String modelo3D) {
 
         PuntoEducativo punto = new PuntoEducativo(
                 idPunto,
@@ -566,11 +437,9 @@ public class FormularioPuntoActivity extends AppCompatActivity {
                 descripcion,
                 latitud,
                 longitud,
-                imagenUrl,
-                modeloUrl
+                imagenReferencia,
+                modelo3D
         );
-
-        btnGuardar.setText("Guardando...");
 
         FirebaseHelper.getPuntosReference()
                 .child(idPunto)
@@ -606,9 +475,5 @@ public class FormularioPuntoActivity extends AppCompatActivity {
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Error al eliminar: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );
-    }
-
-    interface OnArchivoSubido {
-        void onSubido(String url);
     }
 }
