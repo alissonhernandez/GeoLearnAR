@@ -29,8 +29,8 @@ public class CustomArFragment extends ArFragment {
 
         agregarImagen(database, "arduino", "arduino.png");
         agregarImagen(database, "android", "android.png");
-
-
+        agregarImagen(database, "diseño", "diseño.png");
+        agregarImagen(database, "protoboard", "protoboard.png");
 
         config.setAugmentedImageDatabase(database);
         session.configure(config);

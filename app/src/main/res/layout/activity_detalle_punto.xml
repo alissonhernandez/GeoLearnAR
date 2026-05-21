@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_light">
@@ -27,7 +26,6 @@
                 android:textColor="@color/white"
                 android:textSize="28sp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -41,7 +39,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
                 android:background="@drawable/bg_card"
-                android:clipToOutline="true"
                 android:scaleType="centerCrop" />
 
             <LinearLayout
@@ -109,7 +106,6 @@
                         android:textColor="#084298"
                         android:textSize="16sp"
                         android:textStyle="bold" />
-
                 </LinearLayout>
 
                 <Button
@@ -134,11 +130,7 @@
                     android:textAllCaps="false"
                     android:textColor="@color/white"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
         </LinearLayout>
-
     </LinearLayout>
-
 </ScrollView>

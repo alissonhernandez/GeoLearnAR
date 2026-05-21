@@ -30,23 +30,23 @@ import java.util.List;
 
 public class ARActivity extends AppCompatActivity {
 
-    private String nombrePunto = "Estación educativa";
-    private String descripcionPunto = "Contenido educativo en realidad aumentada.";
+    private String nombrePunto = "";
+    private String descripcionPunto = "";
     private String imagenReferencia = "";
     private String modelo3D = "";
 
     private boolean modoLibre = false;
     private boolean imagenYaDetectada = false;
+    private boolean contenidoColocado = false;
+    private boolean puedeDetectar = true;
+    private boolean cargandoModelo = false;
 
     private CustomArFragment arFragment;
     private ModelRenderable modeloRenderable;
     private AnchorNode anchorActual;
+
     private Button btnReiniciarAR;
     private TextView txtInstruccionAR;
-
-    private boolean contenidoColocado = false;
-    private boolean puedeDetectar = true;
-    private boolean cargandoModelo = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,69 +62,102 @@ public class ARActivity extends AppCompatActivity {
         txtInstruccionAR = findViewById(R.id.txtInstruccionAR);
 
         if (arFragment == null) {
-            Toast.makeText(this, "Error al iniciar AR", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "No se pudo iniciar la cámara AR.", Toast.LENGTH_LONG).show();
+            finish();
             return;
         }
 
-        if (modoLibre) {
-            txtInstruccionAR.setText("Modo libre: escanea una imagen registrada para cargar su modelo.");
-        } else {
-            txtInstruccionAR.setText("Escanea la imagen: " + imagenReferencia);
-            cargarModeloGLB(null);
-        }
+        mostrarInstruccionInicial();
 
         arFragment.getArSceneView()
                 .getScene()
                 .addOnUpdateListener(frameTime -> detectarImagen());
 
-        arFragment.getArSceneView().getScene().setOnTouchListener((hitTestResult, motionEvent) -> {
-            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                colocarModeloConToque(motionEvent);
-            }
-            return true;
-        });
+        arFragment.getArSceneView()
+                .getScene()
+                .setOnTouchListener((hitTestResult, motionEvent) -> {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        colocarModeloConToque(motionEvent);
+                    }
+                    return true;
+                });
 
         btnReiniciarAR.setOnClickListener(v -> reiniciarAR());
     }
 
     private void recibirDatosDelPunto() {
-        if (getIntent() != null) {
-            modoLibre = getIntent().getBooleanExtra("modoLibre", false);
-
-            String nombre = getIntent().getStringExtra("nombre");
-            String descripcion = getIntent().getStringExtra("descripcion");
-            String imagen = getIntent().getStringExtra("imagenReferencia");
-            String modelo = getIntent().getStringExtra("modelo3D");
-
-            if (nombre != null && !nombre.trim().isEmpty()) {
-                nombrePunto = nombre.trim();
-            }
-
-            if (descripcion != null && !descripcion.trim().isEmpty()) {
-                descripcionPunto = descripcion.trim();
-            }
-
-            if (imagen != null && !imagen.trim().isEmpty()) {
-                imagenReferencia = limpiarNombreImagen(imagen);
-            }
-
-            if (modelo != null && !modelo.trim().isEmpty()) {
-                modelo3D = limpiarNombreModelo(modelo);
-            }
+        if (getIntent() == null) {
+            Toast.makeText(this, "No se recibieron datos del punto educativo.", Toast.LENGTH_LONG).show();
+            return;
         }
 
-        if (!modoLibre) {
-            if (imagenReferencia == null || imagenReferencia.trim().isEmpty()) {
-                imagenReferencia = "arduino";
-            }
+        modoLibre = getIntent().getBooleanExtra("modoLibre", false);
 
-            if (modelo3D == null || modelo3D.trim().isEmpty()) {
-                modelo3D = imagenReferencia + ".glb";
-            }
+        String nombre = getIntent().getStringExtra("nombre");
+        String descripcion = getIntent().getStringExtra("descripcion");
+        String imagen = getIntent().getStringExtra("imagenReferencia");
+        String modelo = getIntent().getStringExtra("modelo3D");
+
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            nombrePunto = nombre.trim();
+        } else {
+            nombrePunto = "Punto educativo sin nombre";
+        }
+
+        if (descripcion != null && !descripcion.trim().isEmpty()) {
+            descripcionPunto = descripcion.trim();
+        } else {
+            descripcionPunto = "Descripción no disponible en Firebase.";
+        }
+
+        if (imagen != null && !imagen.trim().isEmpty()) {
+            imagenReferencia = limpiarNombreImagen(imagen);
+        } else {
+            imagenReferencia = "";
+        }
+
+        if (modelo != null && !modelo.trim().isEmpty()) {
+            modelo3D = limpiarNombreModelo(modelo);
+        } else if (!imagenReferencia.isEmpty()) {
+            modelo3D = imagenReferencia + ".glb";
+        } else {
+            modelo3D = "";
         }
     }
 
+    private void mostrarInstruccionInicial() {
+        if (modoLibre) {
+            txtInstruccionAR.setText(
+                    "Modo libre:\n1. Apunta a una imagen registrada.\n2. Espera detección.\n3. Toca una superficie."
+            );
+            return;
+        }
+
+        if (imagenReferencia == null || imagenReferencia.trim().isEmpty()) {
+            txtInstruccionAR.setText(
+                    "No se recibió imagen de referencia desde Firebase.\nRevisa que el punto educativo tenga el campo imagenReferencia."
+            );
+            return;
+        }
+
+        if (modelo3D == null || modelo3D.trim().isEmpty()) {
+            txtInstruccionAR.setText(
+                    "No se recibió modelo 3D desde Firebase.\nRevisa que el punto educativo tenga el campo modelo3D."
+            );
+            return;
+        }
+
+        txtInstruccionAR.setText(
+                "Escanea la imagen: " + imagenReferencia +
+                        "\nLuego toca una mesa o superficie para colocar el modelo."
+        );
+
+        cargarModeloGLB(null);
+    }
+
     private String limpiarNombreImagen(String valor) {
+        if (valor == null) return "";
+
         valor = valor.trim();
 
         if (valor.contains("/")) {
@@ -140,10 +173,19 @@ public class ARActivity extends AppCompatActivity {
     }
 
     private String limpiarNombreModelo(String valor) {
+        if (valor == null) return "";
+
         valor = valor.trim();
 
         if (valor.contains("/")) {
             valor = valor.substring(valor.lastIndexOf("/") + 1);
+        }
+
+        if (!valor.toLowerCase().endsWith(".glb")
+                && !valor.toLowerCase().endsWith(".gltf")) {
+            if (!imagenReferencia.isEmpty()) {
+                return imagenReferencia + ".glb";
+            }
         }
 
         return valor;
@@ -151,9 +193,13 @@ public class ARActivity extends AppCompatActivity {
 
     private void cargarModeloGLB(Runnable alCargar) {
         if (modelo3D == null || modelo3D.trim().isEmpty()) {
-            txtInstruccionAR.setText("Primero escanea una imagen registrada para saber qué modelo cargar.");
+            txtInstruccionAR.setText(
+                    "No hay modelo 3D configurado para este punto educativo."
+            );
             return;
         }
+
+        if (cargandoModelo) return;
 
         cargandoModelo = true;
 
@@ -168,25 +214,37 @@ public class ARActivity extends AppCompatActivity {
                     if (alCargar != null) {
                         alCargar.run();
                     } else {
-                        txtInstruccionAR.setText("Modelo listo. Ahora apunta a una mesa/superficie y tócala.");
+                        txtInstruccionAR.setText(
+                                "Modelo cargado: " + modelo3D +
+                                        "\nEscanea la imagen registrada y toca una superficie detectada."
+                        );
                     }
                 })
                 .exceptionally(throwable -> {
                     cargandoModelo = false;
-                    txtInstruccionAR.setText("No se pudo cargar " + modelo3D + ". Revisa que exista en assets.");
+                    modeloRenderable = null;
+
+                    txtInstruccionAR.setText(
+                            "No se pudo cargar el modelo: " + modelo3D +
+                                    "\nVerifica que exista en app/src/main/assets/"
+                    );
+
                     Toast.makeText(this, "Error cargando modelo 3D", Toast.LENGTH_LONG).show();
                     return null;
                 });
     }
 
     private void detectarImagen() {
+        if (arFragment == null) return;
+
         Frame frame = arFragment.getArSceneView().getArFrame();
 
         if (frame == null || contenidoColocado || !puedeDetectar || cargandoModelo || imagenYaDetectada) {
             return;
         }
 
-        Collection<AugmentedImage> imagenes = frame.getUpdatedTrackables(AugmentedImage.class);
+        Collection<AugmentedImage> imagenes =
+                frame.getUpdatedTrackables(AugmentedImage.class);
 
         for (AugmentedImage imagen : imagenes) {
             if (imagen.getTrackingState() == TrackingState.TRACKING) {
@@ -194,7 +252,10 @@ public class ARActivity extends AppCompatActivity {
                 String imagenDetectada = imagen.getName();
 
                 if (!modoLibre && !imagenDetectada.equalsIgnoreCase(imagenReferencia)) {
-                    txtInstruccionAR.setText("Detecté " + imagenDetectada + ", pero esta estación necesita " + imagenReferencia + ".");
+                    txtInstruccionAR.setText(
+                            "Imagen detectada: " + imagenDetectada +
+                                    "\nPero este punto educativo necesita: " + imagenReferencia
+                    );
                     return;
                 }
 
@@ -207,8 +268,12 @@ public class ARActivity extends AppCompatActivity {
                 imagenYaDetectada = true;
 
                 cargarModeloGLB(() -> {
-                    txtInstruccionAR.setText("Imagen detectada: " + imagenDetectada + ". Ahora toca una superficie para colocar el modelo.");
-                    Toast.makeText(this, imagenDetectada + " detectado", Toast.LENGTH_LONG).show();
+                    txtInstruccionAR.setText(
+                            "Imagen detectada: " + imagenDetectada +
+                                    "\nAhora toca una superficie plana para colocar el modelo."
+                    );
+
+                    Toast.makeText(this, imagenDetectada + " detectado", Toast.LENGTH_SHORT).show();
                 });
 
                 break;
@@ -219,13 +284,13 @@ public class ARActivity extends AppCompatActivity {
     private void configurarTextoSegunImagen(String imagenDetectada) {
         if (imagenDetectada.equalsIgnoreCase("arduino")) {
             nombrePunto = "Estación Arduino";
-            descripcionPunto = "Aprende sobre microcontroladores, sensores y salidas digitales.";
+            descripcionPunto = "Microcontrolador utilizado para crear proyectos electrónicos con sensores, luces y motores.";
         } else if (imagenDetectada.equalsIgnoreCase("android")) {
-            nombrePunto = "Estación Programación Móvil";
-            descripcionPunto = "Explora el desarrollo de aplicaciones Android con Java y Firebase.";
+            nombrePunto = "Estación Android";
+            descripcionPunto = "Sistema operativo móvil usado para desarrollar aplicaciones educativas con Java y Firebase.";
         } else if (imagenDetectada.equalsIgnoreCase("protoboard")) {
             nombrePunto = "Estación Protoboard";
-            descripcionPunto = "Identifica conexiones básicas para circuitos electrónicos.";
+            descripcionPunto = "Placa de pruebas usada para armar circuitos electrónicos sin soldar.";
         } else {
             nombrePunto = "Estación " + imagenDetectada;
             descripcionPunto = "Contenido educativo en realidad aumentada.";
@@ -234,22 +299,24 @@ public class ARActivity extends AppCompatActivity {
 
     private void colocarModeloConToque(MotionEvent motionEvent) {
         if (contenidoColocado) {
+            txtInstruccionAR.setText("El modelo ya fue colocado. Usa Reiniciar para volver a intentarlo.");
+            return;
+        }
+
+        if (!imagenYaDetectada && !modoLibre) {
+            txtInstruccionAR.setText("Primero escanea la imagen: " + imagenReferencia);
             return;
         }
 
         if (modeloRenderable == null) {
-            if (modoLibre) {
-                txtInstruccionAR.setText("Primero escanea una imagen registrada. Luego toca una superficie.");
-            } else {
-                txtInstruccionAR.setText("El modelo todavía se está cargando.");
-            }
+            txtInstruccionAR.setText("El modelo aún se está cargando. Espera unos segundos.");
             return;
         }
 
         Frame frame = arFragment.getArSceneView().getArFrame();
 
         if (frame == null) {
-            txtInstruccionAR.setText("Mueve el celular lentamente para detectar superficies.");
+            txtInstruccionAR.setText("Mueve lentamente el celular para detectar superficies.");
             return;
         }
 
@@ -262,22 +329,27 @@ public class ARActivity extends AppCompatActivity {
                 if (plane.isPoseInPolygon(hit.getHitPose())) {
                     Anchor anchor = hit.createAnchor();
 
-                    colocarContenidoAR(anchor, "Contenido educativo:\n" + nombrePunto);
+                    colocarContenidoAR(anchor);
 
                     contenidoColocado = true;
 
-                    txtInstruccionAR.setText("Modelo colocado con hitTest y anchor sobre una superficie.");
-                    Toast.makeText(this, "Modelo colocado en superficie", Toast.LENGTH_SHORT).show();
-                    break;
+                    txtInstruccionAR.setText(
+                            "Modelo colocado correctamente usando hitTest y anchor.\nPuedes observarlo moviendo el teléfono."
+                    );
+
+                    Toast.makeText(this, "Modelo colocado", Toast.LENGTH_SHORT).show();
+                    return;
                 }
             }
         }
+
+        txtInstruccionAR.setText(
+                "No se detectó una superficie válida.\nApunta a una mesa o piso iluminado y toca de nuevo."
+        );
     }
 
-    private void colocarContenidoAR(Anchor anchor, String textoEtiqueta) {
-        if (anchorActual != null) {
-            return;
-        }
+    private void colocarContenidoAR(Anchor anchor) {
+        if (anchorActual != null) return;
 
         anchorActual = new AnchorNode(anchor);
         anchorActual.setParent(arFragment.getArSceneView().getScene());
@@ -287,51 +359,55 @@ public class ARActivity extends AppCompatActivity {
         nodo3D.setRenderable(modeloRenderable);
 
         aplicarEscalaYRotacion(nodo3D);
-
-        crearEtiqueta(anchorActual, textoEtiqueta + "\n" + descripcionPunto);
+        crearEtiqueta(anchorActual);
     }
 
     private void aplicarEscalaYRotacion(Node nodo3D) {
+        String clave = imagenReferencia == null ? "" : imagenReferencia.toLowerCase();
 
-        if (imagenReferencia.equalsIgnoreCase("arduino")) {
-            nodo3D.setLocalScale(new Vector3(0.18f, 0.18f, 0.18f));
+        if (clave.contains("arduino")) {
+            nodo3D.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
             nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
             nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
 
-        } else if (imagenReferencia.equalsIgnoreCase("android")) {
-            nodo3D.setLocalScale(new Vector3(0.22f, 0.22f, 0.22f));
+        } else if (clave.contains("android")) {
+            nodo3D.setLocalScale(new Vector3(0.28f, 0.28f, 0.28f));
             nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
             nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
 
-        } else if (imagenReferencia.equalsIgnoreCase("protoboard")) {
-            nodo3D.setLocalScale(new Vector3(0.20f, 0.20f, 0.20f));
+        } else if (clave.contains("protoboard")) {
+            nodo3D.setLocalScale(new Vector3(0.24f, 0.24f, 0.24f));
             nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
             nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
 
         } else {
-            nodo3D.setLocalScale(new Vector3(0.18f, 0.18f, 0.18f));
+            nodo3D.setLocalScale(new Vector3(0.24f, 0.24f, 0.24f));
             nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
         }
     }
 
-    private void crearEtiqueta(AnchorNode anchorNode, String texto) {
+    private void crearEtiqueta(AnchorNode anchorNode) {
         TextView textView = new TextView(this);
+
+        String texto = nombrePunto + "\n\n" + descripcionPunto;
+
         textView.setText(texto);
         textView.setTextColor(Color.WHITE);
-        textView.setTextSize(7);
-        textView.setBackgroundColor(Color.argb(210, 70, 50, 130));
-        textView.setPadding(12, 8, 12, 8);
-        textView.setMaxWidth(420);
+        textView.setTextSize(8);
+        textView.setBackgroundColor(Color.argb(225, 70, 50, 130));
+        textView.setPadding(18, 12, 18, 12);
+        textView.setMaxWidth(520);
 
         ViewRenderable.builder()
                 .setView(this, textView)
                 .build()
                 .thenAccept(renderable -> {
-                    Node textoNode = new Node();
-                    textoNode.setParent(anchorNode);
-                    textoNode.setRenderable(renderable);
-                    textoNode.setLocalPosition(new Vector3(0f, 0.08f, 0f));
-                    textoNode.setLocalScale(new Vector3(0.13f, 0.13f, 0.13f));
+                    Node etiquetaNode = new Node();
+                    etiquetaNode.setParent(anchorNode);
+                    etiquetaNode.setRenderable(renderable);
+
+                    etiquetaNode.setLocalPosition(new Vector3(0f, 0.15f, 0f));
+                    etiquetaNode.setLocalScale(new Vector3(0.15f, 0.15f, 0.15f));
                 });
     }
 
@@ -353,22 +429,44 @@ public class ARActivity extends AppCompatActivity {
         modeloRenderable = null;
         cargandoModelo = false;
 
-        if (modoLibre) {
-            imagenReferencia = "";
-            modelo3D = "";
-            txtInstruccionAR.setText("Reiniciando... aparta la cámara de la imagen anterior.");
-        } else {
-            cargarModeloGLB(null);
-            txtInstruccionAR.setText("AR reiniciado. Escanea: " + imagenReferencia);
-        }
+        txtInstruccionAR.setText(
+                "Reiniciando AR...\nAparta la cámara de la imagen anterior unos segundos."
+        );
 
         Toast.makeText(this, "AR reiniciado", Toast.LENGTH_SHORT).show();
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             puedeDetectar = true;
+
             if (modoLibre) {
-                txtInstruccionAR.setText("Reiniciado. Apunta nuevamente a una imagen registrada.");
+                imagenReferencia = "";
+                modelo3D = "";
+
+                txtInstruccionAR.setText(
+                        "Modo libre reiniciado.\nApunta nuevamente a una imagen registrada."
+                );
+
+            } else {
+                if (imagenReferencia == null || imagenReferencia.trim().isEmpty()) {
+                    txtInstruccionAR.setText(
+                            "No hay imagen de referencia configurada para esta estación."
+                    );
+                    return;
+                }
+
+                if (modelo3D == null || modelo3D.trim().isEmpty()) {
+                    txtInstruccionAR.setText(
+                            "No hay modelo 3D configurado para esta estación."
+                    );
+                    return;
+                }
+
+                cargarModeloGLB(null);
+
+                txtInstruccionAR.setText(
+                        "AR reiniciado.\nEscanea nuevamente la imagen: " + imagenReferencia
+                );
             }
-        }, 3000);
+        }, 4000);
     }
 }
