@@ -14,45 +14,48 @@ import java.io.InputStream;
 
 public class CustomArFragment extends ArFragment {
 
+    private static final String TAG = "AR_IMAGENES";
+
     @Override
     protected Config onCreateSessionConfig(Session session) {
 
         Config config = new Config(session);
 
-        config.setLightEstimationMode(
-                Config.LightEstimationMode.DISABLED
-        );
+        config.setLightEstimationMode(Config.LightEstimationMode.DISABLED);
+        config.setPlaneFindingMode(Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL);
+        config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);
 
-        try {
+        AugmentedImageDatabase database = new AugmentedImageDatabase(session);
 
-            InputStream inputStream = requireContext()
-                    .getAssets()
-                    .open("cuaderno.jpeg");
+        agregarImagen(database, "arduino", "arduino.png");
+        agregarImagen(database, "android", "android.png");
 
-            Bitmap bitmap =
-                    BitmapFactory.decodeStream(inputStream);
 
-            AugmentedImageDatabase database =
-                    new AugmentedImageDatabase(session);
 
-            database.addImage(
-                    "cuaderno",
-                    bitmap
-            );
-
-            config.setAugmentedImageDatabase(database);
-
-        } catch (IOException e) {
-
-            Log.e(
-                    "CustomArFragment",
-                    "Error cargando cuaderno.jpeg",
-                    e
-            );
-        }
-
+        config.setAugmentedImageDatabase(database);
         session.configure(config);
 
+        Log.d(TAG, "Base de imágenes ARCore cargada correctamente");
+
         return config;
+    }
+
+    private void agregarImagen(AugmentedImageDatabase database, String nombre, String archivoAsset) {
+        try {
+            InputStream inputStream = requireContext().getAssets().open(archivoAsset);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            if (bitmap != null) {
+                database.addImage(nombre, bitmap);
+                Log.d(TAG, "Imagen agregada: " + nombre + " / " + archivoAsset);
+            } else {
+                Log.e(TAG, "No se pudo leer la imagen: " + archivoAsset);
+            }
+
+            inputStream.close();
+
+        } catch (IOException e) {
+            Log.e(TAG, "No existe en assets: " + archivoAsset, e);
+        }
     }
 }

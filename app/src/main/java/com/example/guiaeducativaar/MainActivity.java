@@ -6,7 +6,6 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.guiaeducativaar.ARActivity;
 import com.example.guiaeducativaar.fragments.AyudaFragment;
 import com.example.guiaeducativaar.fragments.HomeFragment;
 import com.example.guiaeducativaar.fragments.ListaPuntosFragment;
@@ -52,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnAR.setOnClickListener(v -> {
             Intent intent = new Intent(this, ARActivity.class);
+            intent.putExtra("modoLibre", true);
             startActivity(intent);
         });
     }

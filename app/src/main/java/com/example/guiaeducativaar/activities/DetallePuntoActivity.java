@@ -81,6 +81,7 @@ public class DetallePuntoActivity extends AppCompatActivity {
             intent.putExtra("descripcion", descripcion);
             intent.putExtra("latitud", String.valueOf(latitudPunto));
             intent.putExtra("longitud", String.valueOf(longitudPunto));
+            intent.putExtra("imagenReferencia", imagenReferencia);
             intent.putExtra("modelo3D", modelo3D);
             startActivity(intent);
         });
@@ -94,10 +95,19 @@ public class DetallePuntoActivity extends AppCompatActivity {
         imagenReferencia = getIntent().getStringExtra("imagenReferencia");
         modelo3D = getIntent().getStringExtra("modelo3D");
 
-        if (modelo3D == null || modelo3D.isEmpty()) {
-            modelo3D = "cuaderno.glb";
+// DEBUG para ver qué está llegando
+        android.util.Log.d("DETALLE_AR",
+                "imagenReferencia = " + imagenReferencia +
+                        " | modelo3D = " + modelo3D);
+
+// Valores por defecto seguros
+        if (imagenReferencia == null || imagenReferencia.trim().isEmpty()) {
+            imagenReferencia = "arduino";
         }
 
+        if (modelo3D == null || modelo3D.trim().isEmpty()) {
+            modelo3D = imagenReferencia + ".glb";
+        }
         txtNombreDetalle.setText(nombre != null ? nombre : "Estación educativa");
         txtDescripcionDetalle.setText(descripcion != null ? descripcion : "Sin descripción");
 
