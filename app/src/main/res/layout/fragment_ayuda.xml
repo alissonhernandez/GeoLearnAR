@@ -2,44 +2,81 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"> <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:background="@drawable/bg_header"
-        android:padding="20dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ayuda"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:gravity="center" />
-    </LinearLayout>
+    android:background="@color/background_light">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="22dp"
         android:orientation="vertical">
 
-        <TextView
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@drawable/bg_header"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Guía de uso"
+                android:textColor="@color/white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="Uso de GPS, imágenes y realidad aumentada"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_card"
-            android:elevation="4dp"
-            android:text="1. Activa el GPS.\n\n2. Selecciona un punto educativo.\n\n3. Acércate al lugar indicado.\n\n4. Abre la cámara de realidad aumentada.\n\n5. Toca un plano para colocar el contenido 3D."
-            android:textSize="16sp"
-            android:textColor="@color/text_dark" /> </LinearLayout>
+            android:orientation="vertical"
+            android:padding="22dp">
 
-</LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card"
+                android:elevation="4dp"
+                android:lineSpacingExtra="4dp"
+                android:padding="18dp"
+                android:text="¿Cómo usar la aplicación?\n\n1. Activa el GPS del teléfono.\n\n2. Entra a una estación educativa desde la lista principal.\n\n3. Presiona Verificar ubicación para calcular la distancia entre tu posición actual y el punto educativo.\n\n4. Si estás cerca de la estación, se habilita el botón Explorar en realidad aumentada.\n\n5. Si estás lejos, debes acercarte al punto educativo para poder desbloquear el contenido AR.\n\n6. Cuando el botón esté habilitado, presiona Explorar en realidad aumentada.\n\n7. Escanea la imagen de referencia indicada para esa estación.\n\n8. Cuando la imagen sea reconocida, apunta a una mesa, piso o superficie plana.\n\n9. Toca la superficie detectada para colocar el modelo 3D.\n\n10. Usa Reiniciar AR si quieres volver a escanear o colocar nuevamente el modelo."
+                android:textColor="@color/text_dark"
+                android:textSize="16sp" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_card"
+                android:elevation="4dp"
+                android:lineSpacingExtra="4dp"
+                android:padding="18dp"
+                android:text="Consejos para una mejor detección\n\n• Usa buena iluminación.\n\n• Mantén visible la imagen de referencia.\n\n• Evita reflejos, sombras fuertes o imágenes borrosas.\n\n• No muevas el celular demasiado rápido.\n\n• Para detectar planos, apunta a una mesa o al piso.\n\n• Si no aparece el modelo, reinicia AR y escanea nuevamente.\n\n• Si el GPS no detecta tu ubicación, activa la ubicación del teléfono y vuelve a intentar."
+                android:textColor="@color/text_dark"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_card"
+                android:elevation="4dp"
+                android:lineSpacingExtra="4dp"
+                android:padding="18dp"
+                android:text="¿Qué hace esta aplicación?\n\n• Administra estaciones educativas desde Firebase Realtime Database.\n\n• Guarda nombre, descripción, coordenadas, imagen de referencia y modelo 3D.\n\n• Usa GPS para verificar cercanía a los puntos educativos.\n\n• Reconoce imágenes mediante la cámara del dispositivo.\n\n• Muestra modelos 3D y etiquetas informativas con ARCore.\n\n• Utiliza hitTest, anchors y coordenadas X, Y, Z para colocar contenido virtual sobre el entorno real."
+                android:textColor="@color/text_dark"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </LinearLayout>
 </ScrollView>
