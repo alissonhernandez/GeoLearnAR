@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -44,6 +45,8 @@ public class DetallePuntoActivity extends AppCompatActivity {
 
     private String nombre;
     private String descripcion;
+    private String imagenReferencia;
+    private String modelo3D;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +67,36 @@ public class DetallePuntoActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         configurarPermisoUbicacion();
+        recibirDatos();
+        cargarImagenReferencia();
 
+        btnAbrirAR.setEnabled(false);
+        mostrarEstado("info", "Presiona verificar ubicación para comprobar si estás cerca de esta estación.");
+
+        btnVerificarUbicacion.setOnClickListener(v -> verificarPermisoYUbicacion());
+
+        btnAbrirAR.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ARActivity.class);
+            intent.putExtra("nombre", nombre);
+            intent.putExtra("descripcion", descripcion);
+            intent.putExtra("latitud", String.valueOf(latitudPunto));
+            intent.putExtra("longitud", String.valueOf(longitudPunto));
+            intent.putExtra("modelo3D", modelo3D);
+            startActivity(intent);
+        });
+    }
+
+    private void recibirDatos() {
         nombre = getIntent().getStringExtra("nombre");
         descripcion = getIntent().getStringExtra("descripcion");
         String latitud = getIntent().getStringExtra("latitud");
         String longitud = getIntent().getStringExtra("longitud");
-        String imagen = getIntent().getStringExtra("imagenReferencia");
+        imagenReferencia = getIntent().getStringExtra("imagenReferencia");
+        modelo3D = getIntent().getStringExtra("modelo3D");
+
+        if (modelo3D == null || modelo3D.isEmpty()) {
+            modelo3D = "cuaderno.glb";
+        }
 
         txtNombreDetalle.setText(nombre != null ? nombre : "Estación educativa");
         txtDescripcionDetalle.setText(descripcion != null ? descripcion : "Sin descripción");
@@ -87,37 +114,30 @@ public class DetallePuntoActivity extends AppCompatActivity {
                 "Latitud: " + latitudPunto +
                         "\nLongitud: " + longitudPunto
         );
+    }
 
-        if (imagen != null && !imagen.isEmpty()) {
-
-            if (imagen.startsWith("http")) {
-                Glide.with(this)
-                        .load(imagen)
-                        .placeholder(R.drawable.ic_launcher_background)
-                        .error(R.drawable.ic_launcher_background)
-                        .into(imgReferencia);
-
-            } else if (imagen.contains("microprogramacion")) {
-                imgReferencia.setImageResource(R.drawable.microprogramacion);
-
-            } else if (imagen.contains("android")) {
-                imgReferencia.setImageResource(R.drawable.android);
-            }
+    private void cargarImagenReferencia() {
+        if (imagenReferencia == null || imagenReferencia.isEmpty()) {
+            imgReferencia.setImageResource(R.drawable.ic_launcher_background);
+            return;
         }
 
-        btnAbrirAR.setEnabled(false);
-        mostrarEstado("info", "Presiona verificar ubicación para comprobar si estás cerca de esta estación.");
+        if (imagenReferencia.startsWith("http")) {
+            Glide.with(this)
+                    .load(imagenReferencia)
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .error(R.drawable.ic_launcher_background)
+                    .into(imgReferencia);
 
-        btnVerificarUbicacion.setOnClickListener(v -> verificarPermisoYUbicacion());
+        } else if (imagenReferencia.contains("microprogramacion")) {
+            imgReferencia.setImageResource(R.drawable.microprogramacion);
 
-        btnAbrirAR.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ARActivity.class);
-            intent.putExtra("nombre", nombre);
-            intent.putExtra("descripcion", descripcion);
-            intent.putExtra("latitud", String.valueOf(latitudPunto));
-            intent.putExtra("longitud", String.valueOf(longitudPunto));
-            startActivity(intent);
-        });
+        } else if (imagenReferencia.contains("android")) {
+            imgReferencia.setImageResource(R.drawable.android);
+
+        } else {
+            imgReferencia.setImageResource(R.drawable.ic_launcher_background);
+        }
     }
 
     private void configurarPermisoUbicacion() {

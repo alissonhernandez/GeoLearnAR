@@ -27,9 +27,10 @@ public class ARActivity extends AppCompatActivity {
 
     private String nombrePunto = "Punto Educativo";
     private String descripcionPunto = "Contenido educativo AR";
+    private String modelo3D = "cuaderno.glb";
 
     private CustomArFragment arFragment;
-    private ModelRenderable modeloCuaderno;
+    private ModelRenderable modeloRenderable;
     private AnchorNode anchorActual;
     private Button btnReiniciarAR;
 
@@ -66,6 +67,7 @@ public class ARActivity extends AppCompatActivity {
         if (getIntent() != null) {
             String nombre = getIntent().getStringExtra("nombre");
             String descripcion = getIntent().getStringExtra("descripcion");
+            String modelo = getIntent().getStringExtra("modelo3D");
 
             if (nombre != null && !nombre.isEmpty()) {
                 nombrePunto = nombre;
@@ -74,20 +76,28 @@ public class ARActivity extends AppCompatActivity {
             if (descripcion != null && !descripcion.isEmpty()) {
                 descripcionPunto = descripcion;
             }
+
+            if (modelo != null && !modelo.isEmpty()) {
+                modelo3D = modelo;
+            }
         }
     }
 
     private void cargarModeloGLB() {
+        Uri uriModelo = Uri.parse(modelo3D);
+
         ModelRenderable.builder()
-                .setSource(this, Uri.parse("cuaderno.glb"))
+                .setSource(this, uriModelo)
                 .setIsFilamentGltf(true)
                 .build()
                 .thenAccept(renderable -> {
-                    modeloCuaderno = renderable;
+                    modeloRenderable = renderable;
                     Toast.makeText(this, "Modelo 3D listo", Toast.LENGTH_SHORT).show();
                 })
                 .exceptionally(throwable -> {
-                    Toast.makeText(this, "Error cargando cuaderno.glb", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,
+                            "Error cargando modelo 3D: " + modelo3D,
+                            Toast.LENGTH_LONG).show();
                     return null;
                 });
     }
@@ -95,7 +105,7 @@ public class ARActivity extends AppCompatActivity {
     private void detectarImagen() {
         Frame frame = arFragment.getArSceneView().getArFrame();
 
-        if (frame == null || modeloCuaderno == null || imagenDetectada || !puedeDetectar) {
+        if (frame == null || modeloRenderable == null || imagenDetectada || !puedeDetectar) {
             return;
         }
 
@@ -103,15 +113,16 @@ public class ARActivity extends AppCompatActivity {
                 frame.getUpdatedTrackables(AugmentedImage.class);
 
         for (AugmentedImage imagen : imagenes) {
-            if (imagen.getTrackingState() == TrackingState.TRACKING
-                    && "cuaderno".equals(imagen.getName())) {
+            if (imagen.getTrackingState() == TrackingState.TRACKING) {
 
                 Anchor anchor = imagen.createAnchor(imagen.getCenterPose());
                 colocarModeloSobreImagen(anchor);
 
                 imagenDetectada = true;
 
-                Toast.makeText(this, "Imagen detectada: cuaderno", Toast.LENGTH_LONG).show();
+                Toast.makeText(this,
+                        "Imagen detectada: " + imagen.getName(),
+                        Toast.LENGTH_LONG).show();
                 break;
             }
         }
@@ -127,9 +138,8 @@ public class ARActivity extends AppCompatActivity {
 
         Node nodo3D = new Node();
         nodo3D.setParent(anchorActual);
-        nodo3D.setRenderable(modeloCuaderno);
+        nodo3D.setRenderable(modeloRenderable);
 
-        // MÁS PEQUEÑO Y MÁS PEGADO AL CUADERNO
         nodo3D.setLocalPosition(new Vector3(0f, 0.01f, 0f));
         nodo3D.setLocalScale(new Vector3(0.10f, 0.10f, 0.10f));
 
@@ -171,10 +181,8 @@ public class ARActivity extends AppCompatActivity {
 
         imagenDetectada = false;
 
-        Toast.makeText(this, "AR reiniciado. Aleja la cámara y vuelve a escanear.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "AR reiniciado. Vuelve a escanear la imagen.", Toast.LENGTH_SHORT).show();
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            puedeDetectar = true;
-        }, 2000);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> puedeDetectar = true, 2000);
     }
 }
