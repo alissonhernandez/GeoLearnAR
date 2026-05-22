@@ -27,15 +27,20 @@ public class CustomArFragment extends ArFragment {
 
         AugmentedImageDatabase database = new AugmentedImageDatabase(session);
 
-        agregarImagen(database, "arduino", "arduino.png");
-        agregarImagen(database, "android", "android.png");
-        agregarImagen(database, "diseño", "diseño.png");
-        agregarImagen(database, "protoboard", "protoboard.png");
+        agregarImagen(database, "mercurio", "mercurio.jpeg");
+        agregarImagen(database, "venus", "venus.jpeg");
+        agregarImagen(database, "tierra", "tierra.jpeg");
+        agregarImagen(database, "marte", "marte.jpeg");
+        agregarImagen(database, "jupiter", "jupiter.jpeg");
+        agregarImagen(database, "saturno", "saturno.jpeg");
+        agregarImagen(database, "urano", "urano.jpeg");
+        agregarImagen(database, "neptuno", "neptuno.jpeg");
+        agregarImagen(database, "sol", "sol.jpeg");
 
         config.setAugmentedImageDatabase(database);
         session.configure(config);
 
-        Log.d(TAG, "Base de imágenes ARCore cargada correctamente");
+        Log.d(TAG, "Base de imágenes de planetas cargada correctamente");
 
         return config;
     }

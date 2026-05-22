@@ -9,7 +9,6 @@ import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -60,9 +59,8 @@ public class ARActivity extends AppCompatActivity {
                 .findFragmentById(R.id.arFragment);
 
         btnReiniciarAR = findViewById(R.id.btnReiniciarAR);
-        txtInstruccionAR = findViewById(R.id.txtInstruccionAR);
-
         btnRegresar = findViewById(R.id.btnRegresar);
+        txtInstruccionAR = findViewById(R.id.txtInstruccionAR);
 
         btnRegresar.setOnClickListener(v ->
                 getOnBackPressedDispatcher().onBackPressed()
@@ -94,7 +92,7 @@ public class ARActivity extends AppCompatActivity {
 
     private void recibirDatosDelPunto() {
         if (getIntent() == null) {
-            Toast.makeText(this, "No se recibieron datos del punto educativo.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "No se recibieron datos del planeta.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -107,7 +105,7 @@ public class ARActivity extends AppCompatActivity {
 
         nombrePunto = (nombre != null && !nombre.trim().isEmpty())
                 ? nombre.trim()
-                : "Punto educativo sin nombre";
+                : "Planeta sin nombre";
 
         descripcionPunto = (descripcion != null && !descripcion.trim().isEmpty())
                 ? descripcion.trim()
@@ -129,28 +127,28 @@ public class ARActivity extends AppCompatActivity {
     private void mostrarInstruccionInicial() {
         if (modoLibre) {
             txtInstruccionAR.setText(
-                    "Modo libre:\n1. Apunta a una imagen registrada.\n2. Espera detección.\n3. Toca una superficie."
+                    "Modo libre:\n1. Apunta a una imagen registrada de un planeta.\n2. Espera la detección.\n3. Toca una superficie."
             );
             return;
         }
 
         if (imagenReferencia == null || imagenReferencia.trim().isEmpty()) {
             txtInstruccionAR.setText(
-                    "No se recibió imagen de referencia desde Firebase.\nRevisa que el punto educativo tenga el campo imagenReferencia."
+                    "No se recibió imagen de referencia desde Firebase.\nRevisa que el planeta tenga el campo imagenReferencia."
             );
             return;
         }
 
         if (modelo3D == null || modelo3D.trim().isEmpty()) {
             txtInstruccionAR.setText(
-                    "No se recibió modelo 3D desde Firebase.\nRevisa que el punto educativo tenga el campo modelo3D."
+                    "No se recibió modelo 3D desde Firebase.\nRevisa que el planeta tenga el campo modelo3D."
             );
             return;
         }
 
         txtInstruccionAR.setText(
-                "Escanea la imagen: " + imagenReferencia +
-                        "\nLuego toca una mesa o superficie para colocar el modelo."
+                "Escanea la imagen del planeta: " + imagenReferencia +
+                        "\nLuego toca una mesa o superficie para colocar el modelo 3D."
         );
 
         cargarModeloGLB(null);
@@ -194,7 +192,7 @@ public class ARActivity extends AppCompatActivity {
 
     private void cargarModeloGLB(Runnable alCargar) {
         if (modelo3D == null || modelo3D.trim().isEmpty()) {
-            txtInstruccionAR.setText("No hay modelo 3D configurado para este punto educativo.");
+            txtInstruccionAR.setText("No hay modelo 3D configurado para este planeta.");
             return;
         }
 
@@ -253,7 +251,7 @@ public class ARActivity extends AppCompatActivity {
                 if (!modoLibre && !imagenDetectada.equalsIgnoreCase(imagenReferencia)) {
                     txtInstruccionAR.setText(
                             "Imagen detectada: " + imagenDetectada +
-                                    "\nPero este punto educativo necesita: " + imagenReferencia
+                                    "\nPero este planeta necesita: " + imagenReferencia
                     );
                     return;
                 }
@@ -269,7 +267,7 @@ public class ARActivity extends AppCompatActivity {
                 cargarModeloGLB(() -> {
                     txtInstruccionAR.setText(
                             "Imagen detectada: " + imagenDetectada +
-                                    "\nAhora toca una superficie plana para colocar el modelo."
+                                    "\nAhora toca una superficie plana para colocar el planeta en 3D."
                     );
 
                     Toast.makeText(this, imagenDetectada + " detectado", Toast.LENGTH_SHORT).show();
@@ -281,20 +279,37 @@ public class ARActivity extends AppCompatActivity {
     }
 
     private void configurarTextoSegunImagen(String imagenDetectada) {
-        if (imagenDetectada.equalsIgnoreCase("arduino")) {
-            nombrePunto = "Estación Arduino";
-            descripcionPunto = "Microcontrolador utilizado para crear proyectos electrónicos con sensores, luces y motores.";
-        } else if (imagenDetectada.equalsIgnoreCase("android")) {
-            nombrePunto = "Estación Android";
-            descripcionPunto = "Sistema operativo móvil usado para desarrollar aplicaciones educativas con Java y Firebase.";
-        } else if (imagenDetectada.equalsIgnoreCase("protoboard")) {
-            nombrePunto = "Estación Protoboard";
-            descripcionPunto = "Placa de pruebas usada para armar circuitos electrónicos sin soldar.";
-        } else if (imagenDetectada.equalsIgnoreCase("diseño")) {
-            nombrePunto = "Estación Diseño";
-            descripcionPunto = "Área relacionada con la planificación visual, estructura y presentación de interfaces educativas.";
+        String clave = imagenDetectada.toLowerCase();
+
+        if (clave.equals("mercurio")) {
+            nombrePunto = "Mercurio";
+            descripcionPunto = "Es el planeta más cercano al Sol y el más pequeño del sistema solar.";
+        } else if (clave.equals("venus")) {
+            nombrePunto = "Venus";
+            descripcionPunto = "Es un planeta rocoso con una atmósfera densa y temperaturas muy elevadas.";
+        } else if (clave.equals("tierra")) {
+            nombrePunto = "Tierra";
+            descripcionPunto = "Es el planeta donde vivimos y posee agua líquida, atmósfera y vida.";
+        } else if (clave.equals("marte")) {
+            nombrePunto = "Marte";
+            descripcionPunto = "Conocido como el planeta rojo por el color de su superficie rica en óxido de hierro.";
+        } else if (clave.equals("jupiter")) {
+            nombrePunto = "Júpiter";
+            descripcionPunto = "Es el planeta más grande del sistema solar y está compuesto principalmente por gases.";
+        } else if (clave.equals("saturno")) {
+            nombrePunto = "Saturno";
+            descripcionPunto = "Es famoso por su sistema de anillos formados por hielo, polvo y roca.";
+        } else if (clave.equals("urano")) {
+            nombrePunto = "Urano";
+            descripcionPunto = "Es un gigante helado con una inclinación axial muy pronunciada.";
+        } else if (clave.equals("neptuno")) {
+            nombrePunto = "Neptuno";
+            descripcionPunto = "Es un planeta azul, lejano y con vientos muy intensos.";
+        } else if (clave.equals("sol")) {
+            nombrePunto = "Sol";
+            descripcionPunto = "Es la estrella del sistema solar y fuente principal de luz y energía para los planetas.";
         } else {
-            nombrePunto = "Estación " + imagenDetectada;
+            nombrePunto = imagenDetectada;
             descripcionPunto = "Contenido educativo en realidad aumentada.";
         }
     }
@@ -306,7 +321,7 @@ public class ARActivity extends AppCompatActivity {
         }
 
         if (!imagenYaDetectada && !modoLibre) {
-            txtInstruccionAR.setText("Primero escanea la imagen: " + imagenReferencia);
+            txtInstruccionAR.setText("Primero escanea la imagen del planeta: " + imagenReferencia);
             return;
         }
 
@@ -336,7 +351,7 @@ public class ARActivity extends AppCompatActivity {
                     contenidoColocado = true;
 
                     txtInstruccionAR.setText(
-                            "Modelo colocado correctamente usando hitTest y anchor.\nPuedes observarlo moviendo el teléfono."
+                            "Modelo colocado correctamente usando hitTest y anchor.\nPuedes observar el planeta moviendo el teléfono."
                     );
 
                     Toast.makeText(this, "Modelo colocado", Toast.LENGTH_SHORT).show();
@@ -367,30 +382,16 @@ public class ARActivity extends AppCompatActivity {
     private void aplicarEscalaYRotacion(Node nodo3D) {
         String clave = imagenReferencia == null ? "" : imagenReferencia.toLowerCase();
 
-        if (clave.contains("arduino")) {
-            nodo3D.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
-            nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
-            nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
-
-        } else if (clave.contains("android")) {
-            nodo3D.setLocalScale(new Vector3(0.28f, 0.28f, 0.28f));
-            nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
-            nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
-
-        } else if (clave.contains("protoboard")) {
-            nodo3D.setLocalScale(new Vector3(0.24f, 0.24f, 0.24f));
-            nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
-            nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
-
-        } else if (clave.contains("diseño")) {
-            nodo3D.setLocalScale(new Vector3(0.24f, 0.24f, 0.24f));
-            nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
-            nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
-
+        if (clave.contains("sol")) {
+            nodo3D.setLocalScale(new Vector3(0.35f, 0.35f, 0.35f));
+        } else if (clave.contains("jupiter") || clave.contains("saturno")) {
+            nodo3D.setLocalScale(new Vector3(0.30f, 0.30f, 0.30f));
         } else {
-            nodo3D.setLocalScale(new Vector3(0.24f, 0.24f, 0.24f));
-            nodo3D.setLocalPosition(new Vector3(0f, 0.02f, 0f));
+            nodo3D.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         }
+
+        nodo3D.setLocalPosition(new Vector3(0f, 0.03f, 0f));
+        nodo3D.setLocalRotation(Quaternion.axisAngle(new Vector3(0f, 1f, 0f), 0f));
     }
 
     private void crearEtiqueta(AnchorNode anchorNode) {
@@ -413,7 +414,7 @@ public class ARActivity extends AppCompatActivity {
                     etiquetaNode.setParent(anchorNode);
                     etiquetaNode.setRenderable(renderable);
 
-                    etiquetaNode.setLocalPosition(new Vector3(0f, 0.15f, 0f));
+                    etiquetaNode.setLocalPosition(new Vector3(0f, 0.18f, 0f));
                     etiquetaNode.setLocalScale(new Vector3(0.15f, 0.15f, 0.15f));
                 });
     }
@@ -450,20 +451,20 @@ public class ARActivity extends AppCompatActivity {
                 modelo3D = "";
 
                 txtInstruccionAR.setText(
-                        "Modo libre reiniciado.\nApunta nuevamente a una imagen registrada."
+                        "Modo libre reiniciado.\nApunta nuevamente a una imagen registrada de un planeta."
                 );
 
             } else {
                 if (imagenReferencia == null || imagenReferencia.trim().isEmpty()) {
                     txtInstruccionAR.setText(
-                            "No hay imagen de referencia configurada para esta estación."
+                            "No hay imagen de referencia configurada para este planeta."
                     );
                     return;
                 }
 
                 if (modelo3D == null || modelo3D.trim().isEmpty()) {
                     txtInstruccionAR.setText(
-                            "No hay modelo 3D configurado para esta estación."
+                            "No hay modelo 3D configurado para este planeta."
                     );
                     return;
                 }
