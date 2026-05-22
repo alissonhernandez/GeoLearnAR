@@ -58,7 +58,6 @@ public class FormularioPuntoActivity extends AppCompatActivity {
             "jupiter.jpeg",
             "marte.jpeg",
             "mercurio.jpeg",
-            "saturno.jpeg",
             "sol.jpeg",
             "tierra.jpeg",
             "venus.jpeg"
@@ -68,7 +67,6 @@ public class FormularioPuntoActivity extends AppCompatActivity {
             "jupiter.glb",
             "marte.glb",
             "mercurio.glb",
-            "saturno.glb",
             "sol.glb",
             "tierra.glb",
             "venus.glb"

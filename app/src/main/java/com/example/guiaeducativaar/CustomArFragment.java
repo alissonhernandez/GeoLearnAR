@@ -41,7 +41,6 @@ public class CustomArFragment extends ArFragment {
         agregarImagen(database, "tierra", "tierra.jpeg");
         agregarImagen(database, "marte", "marte.jpeg");
         agregarImagen(database, "jupiter", "jupiter.jpeg");
-        agregarImagen(database, "saturno", "saturno.jpeg");
         agregarImagen(database, "sol", "sol.jpeg");
 
         config.setAugmentedImageDatabase(database);

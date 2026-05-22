@@ -296,9 +296,6 @@ public class ARActivity extends AppCompatActivity {
         } else if (clave.equals("jupiter")) {
             nombrePunto = "Júpiter";
             descripcionPunto = "Es el planeta más grande del sistema solar y está compuesto principalmente por gases.";
-        } else if (clave.equals("saturno")) {
-            nombrePunto = "Saturno";
-            descripcionPunto = "Es famoso por su sistema de anillos formados por hielo, polvo y roca.";
         } else if (clave.equals("sol")) {
             nombrePunto = "Sol";
             descripcionPunto = "Es la estrella del sistema solar y fuente principal de luz y energía para los planetas.";
