@@ -26,6 +26,10 @@
             android:name="com.google.ar.core"
             android:value="required" />
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCPSApiJVGZ6y4tfY7R2B8UFpPYSb_NeMY" />
+
         <activity
             android:name=".WelcomeActivity"
             android:exported="true">

@@ -47,7 +47,7 @@ public class DetallePuntoActivity extends AppCompatActivity {
     private double latitudPunto;
     private double longitudPunto;
 
-    private final float RADIO_PERMITIDO_METROS = 50f;
+    private final float RADIO_PERMITIDO_METROS = 80f;
 
     private String nombre = "";
     private String descripcion = "";
@@ -68,7 +68,6 @@ public class DetallePuntoActivity extends AppCompatActivity {
         btnVerificarUbicacion = findViewById(R.id.btnVerificarUbicacion);
         btnAbrirAR = findViewById(R.id.btnAbrirAR);
         imgReferencia = findViewById(R.id.imgReferencia);
-
         btnRegresar = findViewById(R.id.btnRegresar);
 
         btnRegresar.setOnClickListener(v ->
@@ -94,8 +93,8 @@ public class DetallePuntoActivity extends AppCompatActivity {
         imagenReferencia = getIntent().getStringExtra("imagenReferencia");
         modelo3D = getIntent().getStringExtra("modelo3D");
 
-        String latitud = getIntent().getStringExtra("latitud");
-        String longitud = getIntent().getStringExtra("longitud");
+        latitudPunto = getIntent().getDoubleExtra("latitud", 0);
+        longitudPunto = getIntent().getDoubleExtra("longitud", 0);
 
         if (nombre == null || nombre.trim().isEmpty()) {
             nombre = "Estación educativa sin nombre";
@@ -115,14 +114,6 @@ public class DetallePuntoActivity extends AppCompatActivity {
             }
         } else {
             modelo3D = limpiarModelo(modelo3D);
-        }
-
-        try {
-            latitudPunto = Double.parseDouble(latitud);
-            longitudPunto = Double.parseDouble(longitud);
-        } catch (Exception e) {
-            latitudPunto = 0;
-            longitudPunto = 0;
         }
 
         txtNombreDetalle.setText(nombre);
@@ -202,6 +193,7 @@ public class DetallePuntoActivity extends AppCompatActivity {
 
     private boolean gpsActivo() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         return locationManager != null &&
                 (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                         || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
@@ -217,25 +209,37 @@ public class DetallePuntoActivity extends AppCompatActivity {
 
         btnVerificarUbicacion.setEnabled(false);
         btnVerificarUbicacion.setText("Verificando ubicación...");
-        mostrarEstado("info", "Buscando ubicación actual con GPS...");
+        mostrarEstado("info", "Buscando ubicación actual...");
 
-        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                .addOnSuccessListener(location -> {
-                    btnVerificarUbicacion.setEnabled(true);
-                    btnVerificarUbicacion.setText("Verificar ubicación");
-
-                    if (location != null) {
-                        calcularDistancia(location);
-                    } else {
-                        mostrarEstado("advertencia", "No se pudo obtener ubicación. Muévete a un lugar abierto e intenta otra vez.");
-                        btnAbrirAR.setEnabled(false);
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(ultimaLocation -> {
+                    if (ultimaLocation != null && ultimaLocation.getAccuracy() <= 100) {
+                        calcularDistancia(ultimaLocation);
                     }
-                })
-                .addOnFailureListener(e -> {
-                    btnVerificarUbicacion.setEnabled(true);
-                    btnVerificarUbicacion.setText("Verificar ubicación");
-                    mostrarEstado("error", "Error obteniendo ubicación: " + e.getMessage());
-                    btnAbrirAR.setEnabled(false);
+
+                    fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                            .addOnSuccessListener(locationActual -> {
+                                btnVerificarUbicacion.setEnabled(true);
+                                btnVerificarUbicacion.setText("Verificar ubicación");
+
+                                if (locationActual != null) {
+                                    calcularDistancia(locationActual);
+                                } else if (ultimaLocation == null) {
+                                    mostrarEstado("advertencia", "No se pudo obtener ubicación. Muévete a un lugar abierto e intenta otra vez.");
+                                    btnAbrirAR.setEnabled(false);
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                btnVerificarUbicacion.setEnabled(true);
+                                btnVerificarUbicacion.setText("Verificar ubicación");
+
+                                if (ultimaLocation != null) {
+                                    calcularDistancia(ultimaLocation);
+                                } else {
+                                    mostrarEstado("error", "Error obteniendo ubicación: " + e.getMessage());
+                                    btnAbrirAR.setEnabled(false);
+                                }
+                            });
                 });
     }
 
@@ -266,10 +270,12 @@ public class DetallePuntoActivity extends AppCompatActivity {
         int distanciaRedondeada = Math.round(distancia);
 
         if (distancia <= RADIO_PERMITIDO_METROS) {
-            mostrarEstado("correcto", "Estás cerca de esta estación. Distancia: " + distanciaRedondeada + " m. Contenido AR desbloqueado.");
+            mostrarEstado("correcto", "Estás cerca de esta estación. Distancia: "
+                    + distanciaRedondeada + " m. Contenido AR desbloqueado.");
             btnAbrirAR.setEnabled(true);
         } else {
-            mostrarEstado("advertencia", "Estás lejos de esta estación. Distancia aproximada: " + distanciaRedondeada + " m. Acércate para desbloquear AR.");
+            mostrarEstado("advertencia", "Estás lejos de esta estación. Distancia aproximada: "
+                    + distanciaRedondeada + " m. Acércate para desbloquear AR.");
             btnAbrirAR.setEnabled(false);
         }
     }
@@ -288,8 +294,8 @@ public class DetallePuntoActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ARActivity.class);
         intent.putExtra("nombre", nombre);
         intent.putExtra("descripcion", descripcion);
-        intent.putExtra("latitud", String.valueOf(latitudPunto));
-        intent.putExtra("longitud", String.valueOf(longitudPunto));
+        intent.putExtra("latitud", latitudPunto);
+        intent.putExtra("longitud", longitudPunto);
         intent.putExtra("imagenReferencia", imagenReferencia);
         intent.putExtra("modelo3D", modelo3D);
         startActivity(intent);
