@@ -55,17 +55,23 @@ public class FormularioPuntoActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
 
     private final String[] imagenesAssets = {
-            "android.png",
-            "diseño.png",
-            "arduino.png",
-            "protoboard.png"
+            "jupiter.jpeg",
+            "marte.jpeg",
+            "mercurio.jpeg",
+            "saturno.jpeg",
+            "sol.jpeg",
+            "tierra.jpeg",
+            "venus.jpeg"
     };
 
     private final String[] modelosAssets = {
-            "android.glb",
-            "diseño.glb",
-            "arduino.glb",
-            "protoboard.glb"
+            "jupiter.glb",
+            "marte.glb",
+            "mercurio.glb",
+            "saturno.glb",
+            "sol.glb",
+            "tierra.glb",
+            "venus.glb"
     };
 
     @Override

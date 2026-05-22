@@ -299,12 +299,6 @@ public class ARActivity extends AppCompatActivity {
         } else if (clave.equals("saturno")) {
             nombrePunto = "Saturno";
             descripcionPunto = "Es famoso por su sistema de anillos formados por hielo, polvo y roca.";
-        } else if (clave.equals("urano")) {
-            nombrePunto = "Urano";
-            descripcionPunto = "Es un gigante helado con una inclinación axial muy pronunciada.";
-        } else if (clave.equals("neptuno")) {
-            nombrePunto = "Neptuno";
-            descripcionPunto = "Es un planeta azul, lejano y con vientos muy intensos.";
         } else if (clave.equals("sol")) {
             nombrePunto = "Sol";
             descripcionPunto = "Es la estrella del sistema solar y fuente principal de luz y energía para los planetas.";
