@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/background_light">
+    android:background="@color/purple_dark"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,7 +13,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp"
+            android:layout_height="140dp"
             android:background="@drawable/bg_header"
             android:padding="20dp">
 
@@ -32,117 +33,150 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:layout_toEndOf="@id/btnRegresar"
                 android:gravity="center"
                 android:text="Nombre del punto"
                 android:textColor="@color/white"
-                android:textSize="28sp"
+                android:textSize="24sp"
                 android:textStyle="bold" />
-
         </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="22dp">
+            android:padding="20dp">
 
-            <ImageView
-                android:id="@+id/imgReferencia"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
-                android:background="@drawable/bg_card"
-                android:scaleType="centerCrop" />
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/purple_dark">
+
+                <ImageView
+                    android:id="@+id/imgReferencia"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="Imagen de referencia" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Descripción"
+                android:textColor="@color/gradient_start"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:background="@drawable/bg_card"
-                android:elevation="4dp"
-                android:orientation="vertical"
-                android:padding="18dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Descripción"
-                    android:textColor="@color/purple_dark"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                android:background="@drawable/bg_list_container"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
 
                 <TextView
                     android:id="@+id/txtDescripcionDetalle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/text_dark"
-                    android:textSize="15sp" />
+                    android:lineSpacingExtra="4dp"
+                    android:text="Cargando descripción del punto astronómico educativo..."
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="Ubicación"
-                    android:textColor="@color/purple_dark"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ubicación Coordenadas"
+                android:textColor="@color/gradient_start"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_list_container"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
 
                 <TextView
                     android:id="@+id/txtCoordenadas"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/text_muted"
-                    android:textSize="15sp" />
+                    android:text="0.00000, -0.00000"
+                    android:textColor="@color/purple_light"
+                    android:textSize="14sp"
+                    android:textStyle="italic" />
+            </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/contenedorEstado"
+            <LinearLayout
+                android:id="@+id/contenedorEstado"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/bg_estado_alert"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:visibility="visible">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@android:drawable/ic_dialog_info"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:id="@+id/txtMensajeEstado"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
-                    android:background="#CFE2FF"
-                    android:gravity="center_vertical"
-                    android:minHeight="80dp"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="18dp"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/txtMensajeEstado"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingExtra="2dp"
-                        android:maxLines="4"
-                        android:text="Mensaje de estado"
-                        android:textColor="#084298"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btnVerificarUbicacion"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:backgroundTint="@color/purple_light"
-                    android:text="Verificar ubicación"
-                    android:textAllCaps="false"
-                    android:textColor="@color/purple_dark"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/btnAbrirAR"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/purple_primary"
-                    android:enabled="false"
-                    android:text="Explorar en realidad aumentada"
-                    android:textAllCaps="false"
+                    android:lineSpacingExtra="2dp"
+                    android:text="Verifica tu ubicación para desbloquear la Realidad Aumentada."
                     android:textColor="@color/white"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider_line"
+                android:layout_marginBottom="24dp"
+                android:alpha="0.1"/>
+
+            <Button
+                android:id="@+id/btnVerificarUbicacion"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="@color/purple_primary"
+                android:text="Verificar ubicación"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
+
+            <Button
+                android:id="@+id/btnAbrirAR"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:backgroundTint="@color/gradient_start"
+                android:enabled="false"
+                android:text="Explorar en realidad aumentada"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

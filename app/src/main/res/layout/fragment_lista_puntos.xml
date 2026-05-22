@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light" android:orientation="vertical">
+    android:background="@color/purple_dark"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Puntos educativos"
+            android:text="Puntos Educativos"
             android:textColor="@color/white"
             android:textSize="26sp"
             android:textStyle="bold" />
@@ -27,37 +29,49 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="Selecciona una estación para ver su contenido."
-            android:textColor="@color/white"
-            android:textSize="15sp" />
-
+            android:textColor="@color/purple_light"
+            android:textSize="14sp" />
     </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAgregarPunto"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="Nueva estación"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        app:icon="@android:drawable/ic_input_add"
+        app:iconTint="@color/white"
+        app:iconGravity="textStart"
+        app:backgroundTint="@color/gradient_start"
+        app:cornerRadius="14dp"
+        app:elevation="3dp" />
 
     <TextView
         android:id="@+id/txtEstadoLista"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="18dp"
-        android:text="Cargando puntos educativos..."
-        android:textColor="@color/text_muted" android:textSize="15sp" />
-
-    <Button
-        android:id="@+id/btnAgregarPunto"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Agregar nueva estación"
-        android:textColor="@color/white"
-        android:textAllCaps="false"
-        android:textStyle="bold"
-        android:backgroundTint="@color/purple_primary"
-        android:layout_marginStart="18dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="10dp" />
+        android:gravity="center"
+        android:padding="12dp"
+        android:text="Cargando estaciones espaciales..."
+        android:textColor="@color/purple_light"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerPuntos"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="18dp" />
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="16dp" />
 
 </LinearLayout>

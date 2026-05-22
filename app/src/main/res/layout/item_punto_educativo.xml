@@ -1,37 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="14dp"
-    android:background="@drawable/bg_card" android:elevation="4dp"
-    android:orientation="vertical"
-    android:padding="18dp">
+    android:layout_height="125dp"
+    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="4dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@android:color/transparent"> <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_modern_card"
+    android:padding="16dp">
 
-    <TextView
-        android:id="@+id/txtNombrePunto"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Nombre del punto"
-        android:textColor="@color/purple_dark"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:layout_height="match_parent"
+        android:layout_toStartOf="@id/imgIconoEstacion"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:layout_marginEnd="12dp">
 
-    <TextView
-        android:id="@+id/txtDescripcionPunto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="Descripción del punto"
-        android:textColor="@color/text_muted"
-        android:textSize="14sp" />
+        <TextView
+            android:id="@+id/txtNombrePunto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nombre del punto"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
-    <TextView
-        android:id="@+id/txtUbicacionPunto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Latitud / Longitud"
-        android:textColor="@color/text_dark"
-        android:textSize="13sp" />
+        <TextView
+            android:id="@+id/txtDescripcionPunto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Descripción del punto educativo"
+            android:textColor="@color/purple_light"
+            android:textSize="13sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:alpha="0.8"/>
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/txtUbicacionPunto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Lat: 0.0000 / Lon: 0.0000"
+            android:textColor="@color/gradient_start"
+            android:textSize="12sp"
+            android:textStyle="bold|italic" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imgIconoEstacion"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/bg_circle_icon_container"
+        android:padding="12dp"
+        android:src="@android:drawable/ic_menu_compass"
+        app:tint="@color/white"
+        android:contentDescription="Explorar punto" />
+
+</RelativeLayout>
+</androidx.cardview.widget.CardView>

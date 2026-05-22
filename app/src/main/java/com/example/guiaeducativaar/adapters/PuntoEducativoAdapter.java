@@ -3,6 +3,7 @@ package com.example.guiaeducativaar.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -62,6 +63,7 @@ public class PuntoEducativoAdapter extends RecyclerView.Adapter<PuntoEducativoAd
     public static class PuntoVH extends RecyclerView.ViewHolder {
 
         TextView txtNombrePunto, txtDescripcionPunto, txtUbicacionPunto;
+        ImageView imgIconoEstacion;
 
         public PuntoVH(@NonNull View itemView) {
             super(itemView);
@@ -69,6 +71,7 @@ public class PuntoEducativoAdapter extends RecyclerView.Adapter<PuntoEducativoAd
             txtNombrePunto = itemView.findViewById(R.id.txtNombrePunto);
             txtDescripcionPunto = itemView.findViewById(R.id.txtDescripcionPunto);
             txtUbicacionPunto = itemView.findViewById(R.id.txtUbicacionPunto);
+            imgIconoEstacion = itemView.findViewById(R.id.imgIconoEstacion);
         }
     }
 }
