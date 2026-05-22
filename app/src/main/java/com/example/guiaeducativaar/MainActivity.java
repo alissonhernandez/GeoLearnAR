@@ -15,7 +15,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigation;
-    FloatingActionButton btnAR;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNavigation = findViewById(R.id.bottomNavigation);
-        btnAR = findViewById(R.id.btnAR);
 
         cargarFragment(new HomeFragment());
 
@@ -47,12 +45,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             return false;
-        });
-
-        btnAR.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ARActivity.class);
-            intent.putExtra("modoLibre", true);
-            startActivity(intent);
         });
     }
 

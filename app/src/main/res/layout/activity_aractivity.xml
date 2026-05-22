@@ -14,27 +14,50 @@
         android:id="@+id/txtInstruccionAR"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Mueve el celular y toca una superficie para colocar contenido educativo AR"
-        android:textColor="@color/white"
-        android:textSize="15sp"
+        android:background="#B36E51A3"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
         android:padding="16dp"
-        android:background="#B36E51A3" />
+        android:text="Mueve el celular y toca una superficie para colocar contenido educativo AR"
+        android:textColor="@color/white"
+        android:textSize="15sp" />
 
-    <Button
-        android:id="@+id/btnReiniciarAR"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Reiniciar"
-        android:textColor="@color/white"
-        android:textAllCaps="false"
-        android:textSize="16sp"
-        android:textStyle="bold"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="24dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:background="@drawable/bg_button_primary"
-        app:backgroundTint="@null" />
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnRegresar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/bg_button_primary"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:text="Regresar"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btnReiniciarAR"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_button_primary"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:text="Reiniciar"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
+
+    </LinearLayout>
 </FrameLayout>

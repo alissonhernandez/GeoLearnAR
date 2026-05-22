@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -45,7 +46,7 @@ public class ARActivity extends AppCompatActivity {
     private ModelRenderable modeloRenderable;
     private AnchorNode anchorActual;
 
-    private Button btnReiniciarAR;
+    private Button btnReiniciarAR, btnRegresar;
     private TextView txtInstruccionAR;
 
     @Override
@@ -60,6 +61,12 @@ public class ARActivity extends AppCompatActivity {
 
         btnReiniciarAR = findViewById(R.id.btnReiniciarAR);
         txtInstruccionAR = findViewById(R.id.txtInstruccionAR);
+
+        btnRegresar = findViewById(R.id.btnRegresar);
+
+        btnRegresar.setOnClickListener(v ->
+                getOnBackPressedDispatcher().onBackPressed()
+        );
 
         if (arFragment == null) {
             Toast.makeText(this, "No se pudo iniciar la cámara AR.", Toast.LENGTH_LONG).show();

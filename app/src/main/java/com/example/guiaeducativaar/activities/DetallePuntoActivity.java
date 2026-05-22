@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,6 +39,7 @@ public class DetallePuntoActivity extends AppCompatActivity {
     private LinearLayout contenedorEstado;
     private Button btnVerificarUbicacion, btnAbrirAR;
     private ImageView imgReferencia;
+    private ImageButton btnRegresar;
 
     private FusedLocationProviderClient fusedLocationClient;
     private ActivityResultLauncher<String> permisoUbicacionLauncher;
@@ -66,6 +68,12 @@ public class DetallePuntoActivity extends AppCompatActivity {
         btnVerificarUbicacion = findViewById(R.id.btnVerificarUbicacion);
         btnAbrirAR = findViewById(R.id.btnAbrirAR);
         imgReferencia = findViewById(R.id.imgReferencia);
+
+        btnRegresar = findViewById(R.id.btnRegresar);
+
+        btnRegresar.setOnClickListener(v ->
+                getOnBackPressedDispatcher().onBackPressed()
+        );
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
