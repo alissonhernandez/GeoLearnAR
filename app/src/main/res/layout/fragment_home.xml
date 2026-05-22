@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:background="@color/purple_dark"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,8 +33,8 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="Acércate a una estación para desbloquear planetas en realidad aumentada."
-                android:textColor="@color/white"
-                android:textSize="15sp" />
+                android:textColor="@color/purple_light"
+                android:textSize="14sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -45,28 +47,90 @@
                 android:id="@+id/txtEstadoMapa"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Mapa de estaciones"
-                android:textColor="@color/purple_dark"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:text="Mapa de Estaciones"
+                android:textColor="@color/gradient_start"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
 
-            <fragment
-                android:id="@+id/mapaHome"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="330dp"
-                android:layout_marginTop="14dp" />
+                android:layout_height="340dp"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="@color/purple_dark">
+
+                <fragment
+                    android:id="@+id/mapaHome"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider_line"
+                android:layout_marginBottom="20dp"
+                android:alpha="0.1"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="🟢 Verde: cerca / desbloqueado\n🔴 Rojo: lejos / bloqueado"
-                android:textColor="@color/text_dark"
-                android:textSize="15sp" />
+                android:text="Estado de cercanía"
+                android:textColor="@color/purple_light"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="10dp"
+                android:alpha="0.7"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_list_container"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/bg_circle_green" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Cerca / Desbloqueado para Realidad Aumentada"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/bg_circle_red" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Lejos / Contenido bloqueado temporalmente"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
-
     </LinearLayout>
-
 </ScrollView>
